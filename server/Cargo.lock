@@ -1535,9 +1535,10 @@ name = "servitor"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "futures",
  "log",
  "quickjs_runtime",
+ "serde",
+ "serde_json",
  "simple-logging",
 ]
 
