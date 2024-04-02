@@ -1,8 +1,18 @@
-pub mod runtime;
-pub mod tests;
+use bollard::{image::ListImagesOptions, Docker};
 
-fn main() -> anyhow::Result<()> {
-    simple_logging::log_to_stderr(log::LevelFilter::Info);
+#[tokio::main]
+async fn main() {
+    let docker = Docker::connect_with_local_defaults().unwrap();
 
-    Ok(())
+    let images = &docker
+        .list_images(Some(ListImagesOptions::<String> {
+            all: true,
+            ..Default::default()
+        }))
+        .await
+        .unwrap();
+
+    for image in images {
+        println!("-> {:?}", image);
+    }
 }

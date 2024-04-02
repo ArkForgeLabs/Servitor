@@ -6,6 +6,7 @@ use quickjs_runtime::{
 };
 
 pub struct JSRuntime {
+    test: i32,
     pub runtime: QuickJsRuntimeFacade,
     pub scripts: HashMap<String, (String, Vec<serde_json::Value>)>,
 }
@@ -13,6 +14,7 @@ pub struct JSRuntime {
 impl JSRuntime {
     pub fn new() -> Self {
         Self {
+            test: 0,
             runtime: QuickJsRuntimeBuilder::new().build(),
             scripts: HashMap::new(),
         }
@@ -27,7 +29,12 @@ impl JSRuntime {
         self.scripts.remove(name);
     }
 
-    pub fn run_scripts(&self) -> anyhow::Result<()> {
+    pub fn run_scripts(&mut self) -> anyhow::Result<()> {
+        let mut test = self.test;
+
+        // ? USE REQWEST FOR CUSTOM FETCH REQUEST FUNCTION.
+        // ? self.runtime.set_function(namespace, name, function);
+
         for i in self.scripts.iter() {
             self.runtime
                 .eval_sync(None, Script::new(i.0.as_str(), i.1 .0.as_str()))?;
