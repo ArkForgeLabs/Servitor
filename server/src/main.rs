@@ -1,17 +1,15 @@
-use actix_web::{get, web, App, HttpServer, Responder};
+use actix_web::{web, App, HttpServer};
 
-#[get("/")]
-async fn index() -> impl Responder {
-    "Hello world!"
-}
+// components
+mod routesv1;
+mod services;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     HttpServer::new(|| {
-        App::new().service(
-            // prefixes all resources and routes attached to it...
-            web::scope("/apiv1").service(index),
-        )
+        App::new()
+            .service(web::scope("/apiv1").service(routesv1::index))
+            .app_data(web::Data::new(Vec::<services::Service>::new()))
     })
     .bind(("127.0.0.1", 8080))?
     .run()
