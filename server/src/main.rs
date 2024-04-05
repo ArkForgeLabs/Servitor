@@ -8,8 +8,9 @@ mod services;
 async fn main() -> std::io::Result<()> {
     HttpServer::new(|| {
         App::new()
-            .service(web::scope("/apiv1").service(routesv1::index))
-            .app_data(web::Data::new(Vec::<services::Service>::new()))
+            .service(routesv1::index)
+            .service(web::scope("/apiv1"))
+            .app_data(web::Data::new(services::Services::new()))
     })
     .bind(("127.0.0.1", 8080))?
     .run()
