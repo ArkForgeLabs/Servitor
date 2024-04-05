@@ -1,5 +1,3 @@
-use std::sync::{Arc, Mutex};
-
 use actix_web::{get, post, web, App, HttpServer};
 use ollama_rs::generation::completion::request::GenerationRequest;
 
@@ -9,11 +7,23 @@ pub struct Input {
     pub input: String,
 }
 
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct Output {
+    pub response: String,
+}
+
 #[get("/input_structure")]
 async fn input_structure() -> web::Json<Input> {
     web::Json(Input {
         instruction: "string".to_string(),
         input: "string".to_string(),
+    })
+}
+
+#[get("/output_structure")]
+async fn output_structure() -> web::Json<Output> {
+    web::Json(Output {
+        response: "string".to_string(),
     })
 }
 
