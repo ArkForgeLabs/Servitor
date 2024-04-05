@@ -3,6 +3,7 @@ pub struct Service {
     /// port of the service
     pub id: u16,
     pub name: String,
+    pub description: String,
     pub input_structure: serde_json::Value,
     pub output_structure: serde_json::Value,
 }
@@ -11,12 +12,14 @@ impl Service {
     pub fn new(
         id: u16,
         name: String,
+        description: String,
         input_structure: serde_json::Value,
         output_structure: serde_json::Value,
     ) -> Self {
         Self {
             id,
             name,
+            description,
             input_structure,
             output_structure,
         }
@@ -33,27 +36,13 @@ impl Services {
         Self(vec![])
     }
 
-    pub fn add(&mut self, service: Service) {
-        self.0.push(service)
+    pub fn add_service(&mut self, service: Service) {
+        self.0.push(service);
     }
 
-    pub fn add_service(
-        &mut self,
-        id: u16,
-        name: String,
-        input_structure: serde_json::Value,
-        output_structure: serde_json::Value,
-    ) {
-        self.0
-            .push(Service::new(id, name, input_structure, output_structure))
-    }
-
-    pub fn get_service(&self, id: u16) -> Service {
-        self.0
-            .iter()
-            .find(|service| service.id == id)
-            .unwrap()
-            .clone()
+    pub fn get_service(&self, id: u16) -> Option<Service> {
+        // remove reference
+        self.0.iter().find(|service| service.id == id).cloned()
     }
 }
 unsafe impl Send for Services {}

@@ -6,10 +6,25 @@ pub struct Input {
     pub instruction: String,
     pub input: String,
 }
+impl Default for Input {
+    fn default() -> Self {
+        Self {
+            instruction: "string".to_string(),
+            input: "string".to_string(),
+        }
+    }
+}
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct Output {
     pub response: String,
+}
+impl Default for Output {
+    fn default() -> Self {
+        Self {
+            response: "string".to_string(),
+        }
+    }
 }
 
 #[get("/input_structure")]
@@ -62,12 +77,24 @@ async fn input(
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    let response = reqwest::Client::new()
+        .post("http://localhost:8080/apiv1/create_service")
+        .json(&serde_json::json!({"id": 501, "name": "AI", "description": "AI", "input_structure": Input::default(), "output_structure": Output::default()}))
+        .send()
+        .await.unwrap();
+
+    println!("Response: {:?}", response);
+
     HttpServer::new(move || {
         App::new()
             .service(web::scope("/apiv1").service(input).service(input_structure))
             .app_data(web::Data::new(ollama_rs::Ollama::default()))
     })
-    .bind(("localhost", 8080))?
+    .bind(("localhost", 501))?
     .run()
-    .await
+    .await?;
+
+    println!("Listening on http://localhost:501");
+
+    Ok(())
 }
