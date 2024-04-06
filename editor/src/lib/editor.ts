@@ -6,6 +6,9 @@ import {
 } from "rete-connection-plugin";
 import { SveltePlugin, Presets, type SvelteArea2D } from "rete-svelte-plugin";
 
+import { new_node } from "./editor/utils";
+import { string_type } from "./editor/basic_types";
+
 type Schemes = GetSchemes<
   ClassicPreset.Node,
   ClassicPreset.Connection<ClassicPreset.Node, ClassicPreset.Node>
@@ -34,26 +37,11 @@ export async function createEditor(container: HTMLElement) {
 
   AreaExtensions.simpleNodesOrder(area);
 
-  const a = new ClassicPreset.Node("ArkForge");
-  a.addControl(
-    "a",
-    new ClassicPreset.InputControl("text", { initial: "cool stuff" })
-  );
-  a.addOutput("a", new ClassicPreset.Output(socket));
-  await editor.addNode(a);
+  let node_a = string_type("Input", socket);
+  let node_b = new_node("Servitor", socket, { a: "string" }, { b: "string" });
 
-  const b = new ClassicPreset.Node("Servitor");
-  b.addControl(
-    "b",
-    new ClassicPreset.InputControl("text", { initial: "cooking" })
-  );
-  b.addInput("b", new ClassicPreset.Input(socket));
-  await editor.addNode(b);
-
-  await editor.addConnection(new ClassicPreset.Connection(a, "a", b, "b"));
-
-  await area.translate(a.id, { x: 0, y: 0 });
-  await area.translate(b.id, { x: 270, y: 0 });
+  editor.addNode(node_a);
+  editor.addNode(node_b);
 
   setTimeout(() => {
     // wait until nodes rendered because they dont have predefined width and height

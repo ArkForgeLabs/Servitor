@@ -18,6 +18,10 @@
     font-size: 1rem;
     text-align: left;
     border: 1px solid #cbd0db;
+
+    background-size: 40px 40px;
+    background-image: linear-gradient(to right, lightgrey 1px, transparent 1px),
+      linear-gradient(to bottom, lightgrey 1px, transparent 1px);
   }
 
   :global(body) {
