@@ -15,7 +15,6 @@ pub async fn get_service(
     app_data: web::Data<crate::AppState>,
 ) -> actix_web::Result<Json<crate::services::Service>> {
     let services = app_data.services.lock().unwrap();
-    println!("services: {:?}", services);
     let service = services.get_service(service_id.into_inner());
 
     if service.is_some() {
@@ -32,8 +31,6 @@ pub async fn create_service(
 ) -> impl Responder {
     let mut services = app_data.services.lock().unwrap();
     services.add_service(service.into_inner());
-
-    println!("Services: {:?}", services);
 
     HttpResponse::Ok()
 }

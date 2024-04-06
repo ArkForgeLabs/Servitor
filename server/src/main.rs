@@ -14,6 +14,13 @@ async fn main() -> std::io::Result<()> {
         services: std::sync::Mutex::new(services::Services::new()),
     });
 
+    let heartbeat_clone = app_data.clone();
+    std::thread::spawn(move || loop {
+        std::thread::sleep(std::time::Duration::from_secs(10));
+        let mut services = heartbeat_clone.services.lock().unwrap();
+        services.heartbeat();
+    });
+
     HttpServer::new(move || {
         App::new()
             .service(routesv1::index)

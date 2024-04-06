@@ -1,4 +1,4 @@
-use actix_web::{get, post, web, App, HttpServer};
+use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
 use ollama_rs::generation::completion::request::GenerationRequest;
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
@@ -40,6 +40,11 @@ async fn output_structure() -> web::Json<Output> {
     web::Json(Output {
         response: "string".to_string(),
     })
+}
+
+#[get("/heartbeat")]
+async fn heartbeat() -> impl Responder {
+    HttpResponse::Ok()
 }
 
 #[post("/input")]
@@ -87,6 +92,7 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(move || {
         App::new()
+            .service(heartbeat)
             .service(web::scope("/apiv1").service(input).service(input_structure))
             .app_data(web::Data::new(ollama_rs::Ollama::default()))
     })
