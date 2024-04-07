@@ -5,7 +5,6 @@ import {
   Presets as ConnectionPresets,
 } from "rete-connection-plugin";
 import { SveltePlugin, Presets, type SvelteArea2D } from "rete-svelte-plugin";
-import { css } from "styled-components";
 
 import { new_node } from "./editor/utils";
 import { string_type } from "./editor/basic_types";
@@ -58,6 +57,38 @@ export async function createEditor(container: HTMLElement) {
     // wait until nodes rendered because they dont have predefined width and height
     AreaExtensions.zoomAt(area, editor.getNodes());
   }, 10);
+
+  setTimeout(() => {
+    const data: any = [];
+    const nodes = editor.getNodes();
+    const connections = editor.getConnections();
+
+    for (const node of nodes) {
+      let connection: any = {};
+
+      for (const conn of connections) {
+        if (conn.source === node.id) {
+          connection = conn;
+          break;
+        }
+      }
+
+      let node_position = area.nodeViews.get(node.id)?.position;
+
+      data.push({
+        id: node.id,
+        label: node.label,
+        inputs: node.inputs,
+        controls: node.controls,
+        outputs: node.outputs,
+        connection: connection,
+        position: [node_position?.x, node_position?.y],
+      });
+    }
+
+    console.log(data);
+  }, 5000);
+
   return {
     destroy: () => area.destroy(),
   };
