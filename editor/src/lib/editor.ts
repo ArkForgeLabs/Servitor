@@ -5,9 +5,11 @@ import {
   Presets as ConnectionPresets,
 } from "rete-connection-plugin";
 import { SveltePlugin, Presets, type SvelteArea2D } from "rete-svelte-plugin";
+import { css } from "styled-components";
 
 import { new_node } from "./editor/utils";
 import { string_type } from "./editor/basic_types";
+import CustomNode from "./editor/CustomNode.svelte";
 
 type Schemes = GetSchemes<
   ClassicPreset.Node,
@@ -27,8 +29,17 @@ export async function createEditor(container: HTMLElement) {
     accumulating: AreaExtensions.accumulateOnCtrl(),
   });
 
-  render.addPreset(Presets.classic.setup());
+  render.addPreset(
+    Presets.classic.setup({
+      customize: {
+        node() {
+          return CustomNode;
+        },
+      },
+    })
+  );
 
+  //render.addPreset(Presets.classic.setup());
   connection.addPreset(ConnectionPresets.classic.setup());
 
   editor.use(area);

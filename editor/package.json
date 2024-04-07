@@ -24,6 +24,7 @@
     "rete-connection-plugin": "^2.0.1",
     "rete-render-utils": "^2.0.2",
     "rete-svelte-plugin": "^2.0.1",
-    "sass": "^1.74.1"
+    "sass": "^1.74.1",
+    "styled-components": "^6.1.8"
   }
 }
