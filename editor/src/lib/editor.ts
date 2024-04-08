@@ -5,9 +5,6 @@ import {
   Presets as ConnectionPresets,
 } from "rete-connection-plugin";
 import { SveltePlugin, Presets, type SvelteArea2D } from "rete-svelte-plugin";
-
-import { new_node } from "./editor/utils";
-import { string_type } from "./editor/basic_types";
 import CustomNode from "./editor/CustomNode.svelte";
 
 type Schemes = GetSchemes<
@@ -16,52 +13,49 @@ type Schemes = GetSchemes<
 >;
 type AreaExtra = SvelteArea2D<Schemes>;
 
-export async function createEditor(container: HTMLElement) {
-  const socket = new ClassicPreset.Socket("socket");
+export default class Editor {
+  socket = new ClassicPreset.Socket("socket");
+  editor = new NodeEditor<Schemes>();
+  connection = new ConnectionPlugin<Schemes, AreaExtra>();
+  render = new SveltePlugin<Schemes, AreaExtra>();
+  area: AreaPlugin<Schemes, AreaExtra>;
 
-  const editor = new NodeEditor<Schemes>();
-  const area = new AreaPlugin<Schemes, AreaExtra>(container);
-  const connection = new ConnectionPlugin<Schemes, AreaExtra>();
-  const render = new SveltePlugin<Schemes, AreaExtra>();
+  constructor(container: HTMLElement) {
+    this.area = new AreaPlugin<Schemes, AreaExtra>(container);
 
-  AreaExtensions.selectableNodes(area, AreaExtensions.selector(), {
-    accumulating: AreaExtensions.accumulateOnCtrl(),
-  });
+    AreaExtensions.selectableNodes(this.area, AreaExtensions.selector(), {
+      accumulating: AreaExtensions.accumulateOnCtrl(),
+    });
 
-  render.addPreset(
-    Presets.classic.setup({
-      customize: {
-        node() {
-          return CustomNode;
+    this.render.addPreset(
+      Presets.classic.setup({
+        customize: {
+          node() {
+            return CustomNode;
+          },
         },
-      },
-    })
-  );
+      })
+    );
 
-  //render.addPreset(Presets.classic.setup());
-  connection.addPreset(ConnectionPresets.classic.setup());
+    //render.addPreset(Presets.classic.setup());
+    this.connection.addPreset(ConnectionPresets.classic.setup());
 
-  editor.use(area);
-  area.use(connection);
-  area.use(render);
+    this.editor.use(this.area);
+    this.area.use(this.connection);
+    this.area.use(this.render);
 
-  AreaExtensions.simpleNodesOrder(area);
+    AreaExtensions.simpleNodesOrder(this.area);
 
-  let node_a = string_type(socket);
-  let node_b = new_node("Servitor", socket, ["a"], ["b"]);
+    setTimeout(() => {
+      // wait until nodes rendered because they dont have predefined width and height
+      AreaExtensions.zoomAt(this.area, this.editor.getNodes());
+    }, 10);
+  }
 
-  editor.addNode(node_a);
-  editor.addNode(node_b);
-
-  setTimeout(() => {
-    // wait until nodes rendered because they dont have predefined width and height
-    AreaExtensions.zoomAt(area, editor.getNodes());
-  }, 10);
-
-  setTimeout(() => {
+  toJSON() {
     const data: any = [];
-    const nodes = editor.getNodes();
-    const connections = editor.getConnections();
+    const nodes = this.editor.getNodes();
+    const connections = this.editor.getConnections();
 
     for (const node of nodes) {
       let connection: any = {};
@@ -73,7 +67,7 @@ export async function createEditor(container: HTMLElement) {
         }
       }
 
-      let node_position = area.nodeViews.get(node.id)?.position;
+      let node_position = this.area.nodeViews.get(node.id)?.position;
 
       data.push({
         id: node.id,
@@ -86,10 +80,10 @@ export async function createEditor(container: HTMLElement) {
       });
     }
 
-    console.log(data);
-  }, 5000);
+    return data;
+  }
 
-  return {
-    destroy: () => area.destroy(),
-  };
+  destroy() {
+    this.area.destroy();
+  }
 }

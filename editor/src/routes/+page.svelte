@@ -1,10 +1,12 @@
 <script lang="ts">
   import { onMount } from "svelte";
+  import Editor from "$lib/editor";
+
   let el: any;
+  let editor: Editor;
 
   onMount(async () => {
-    const { createEditor } = await import("../lib/editor");
-    createEditor(el);
+    editor = new Editor(el);
   });
 </script>
 
