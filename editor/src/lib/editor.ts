@@ -47,8 +47,8 @@ export async function createEditor(container: HTMLElement) {
 
   AreaExtensions.simpleNodesOrder(area);
 
-  let node_a = string_type("Input", socket);
-  let node_b = new_node("Servitor", socket, { a: "string" }, { b: "string" });
+  let node_a = string_type(socket);
+  let node_b = new_node("Servitor", socket, ["a"], ["b"]);
 
   editor.addNode(node_a);
   editor.addNode(node_b);
