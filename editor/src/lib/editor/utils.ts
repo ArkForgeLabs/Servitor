@@ -20,3 +20,17 @@ export function new_node(
 
   return node;
 }
+
+export function normalized_to_pixel(
+  normalizedValue: number,
+  minValue: number,
+  maxValue: number
+) {
+  // Adjust the normalized value to be in the range of 0 to 1
+  let adjustedNormalizedValue = (normalizedValue + 1) / 2;
+
+  // Perform the linear transformation
+  let number = adjustedNormalizedValue * (maxValue - minValue) + minValue;
+
+  return number;
+}

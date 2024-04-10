@@ -6,6 +6,7 @@ import {
 } from "rete-connection-plugin";
 import { SveltePlugin, Presets, type SvelteArea2D } from "rete-svelte-plugin";
 import CustomNode from "./editor/CustomNode.svelte";
+import { new_node } from "./editor/utils";
 
 type Schemes = GetSchemes<
   ClassicPreset.Node,
@@ -45,6 +46,8 @@ export default class Editor {
     this.area.use(this.render);
 
     AreaExtensions.simpleNodesOrder(this.area);
+
+    this.editor.addNode(new_node("test", this.socket, [], ["output"]));
 
     setTimeout(() => {
       // wait until nodes rendered because they dont have predefined width and height
@@ -87,3 +90,17 @@ export default class Editor {
     this.area.destroy();
   }
 }
+
+/*let node = new_node("test", socket, [], ["output"]);
+  editor.addNode(node);
+
+  area.container.addEventListener("click", async (e) => {
+    console.log(e);
+
+    area.area.setPointerFrom(e);
+
+    let position = area.area.pointer;
+    let view = area.nodeViews.get(node.id);
+
+    await view?.translate(position.x, position.y);
+  }); */

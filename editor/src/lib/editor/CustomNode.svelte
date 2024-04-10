@@ -168,7 +168,7 @@
 
     :global(.output-socket) {
       text-align: right;
-      margin-right: -1px;
+      margin-right: -20px;
       display: inline-block;
     }
 
