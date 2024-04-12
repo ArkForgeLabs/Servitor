@@ -1,33 +1,15 @@
 <script lang="ts">
-  import { onMount } from "svelte";
-  import Editor from "$lib/editor";
-
-  let el: any;
-  let editor: Editor;
-
-  onMount(async () => {
-    editor = new Editor(el);
-  });
+  import Editor from "$lib/components/editor.svelte";
+  import NodeList from "$lib/components/node_list.svelte";
 </script>
 
-<div class="rete" bind:this={el} />
+<div>
+  <NodeList />
+  <Editor />
+</div>
 
 <style>
-  .rete {
-    position: relative;
-    width: 100vw;
-    height: 100vh;
-    font-size: 1rem;
-    text-align: left;
-    border: 1px solid #cbd0db;
-
-    background-size: 40px 40px;
-    background-image: linear-gradient(to right, lightgrey 1px, transparent 1px),
-      linear-gradient(to bottom, lightgrey 1px, transparent 1px);
-  }
-
-  :global(body) {
-    margin: 0;
-    overflow: hidden;
+  div {
+    display: flex;
   }
 </style>

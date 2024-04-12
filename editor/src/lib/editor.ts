@@ -47,7 +47,7 @@ export default class Editor {
 
     AreaExtensions.simpleNodesOrder(this.area);
 
-    this.editor.addNode(new_node("test", this.socket, [], ["output"]));
+    this.editor.addNode(new_node("test", this.socket, [], ["output"], "test"));
 
     setTimeout(() => {
       // wait until nodes rendered because they dont have predefined width and height
