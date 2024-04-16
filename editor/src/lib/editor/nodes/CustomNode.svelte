@@ -36,106 +36,111 @@
 >
   <div class="title" data-testid="title">{data.label}</div>
 
-  <!-- Outputs -->
-  {#each outputs as [key, output]}
-    <div class="output" data-testid="'output-'+key">
-      <div class="output-title" data-testid="output-title">
-        {output.label || ""}
-      </div>
-      <Ref
-        class="output-socket"
-        data-testid="output-socket"
-        init={(element) =>
-          emit({
-            type: "render",
-            data: {
-              type: "socket",
-              side: "output",
-              key,
-              nodeId: data.id,
-              element,
-              payload: output.socket,
-            },
-          })}
-        unmount={(ref) => emit({ type: "unmount", data: { element: ref } })}
-      />
-    </div>
-  {/each}
-
-  <!-- Controls -->
-  {#each controls as [key, control]}
-    <Ref
-      class="control"
-      data-testid={"control-" + key}
-      init={(element) =>
-        emit({
-          type: "render",
-          data: {
-            type: "control",
-            element,
-            payload: control,
-          },
-        })}
-      unmount={(ref) => emit({ type: "unmount", data: { element: ref } })}
-    />
-  {/each}
-
-  <!-- Inputs -->
-  {#each inputs as [key, input]}
-    <div class="input" data-testid="'input-'+key">
-      <Ref
-        class="input-socket"
-        data-testid="input-socket"
-        init={(element) =>
-          emit({
-            type: "render",
-            data: {
-              type: "socket",
-              side: "input",
-              key,
-              nodeId: data.id,
-              element,
-              payload: input.socket,
-            },
-          })}
-        unmount={(ref) => emit({ type: "unmount", data: { element: ref } })}
-      />
-      {#if !input.control || !input.showControl}
-        <div class="input-title" data-testid="input-title">
-          {input.label || ""}
+  <div class="node-body">
+    <div class="node-body-inputs">
+      <!-- Inputs -->
+      {#each inputs as [key, input]}
+        <div class="input" data-testid="'input-'+key">
+          <Ref
+            class="input-socket"
+            data-testid="input-socket"
+            init={(element) =>
+              emit({
+                type: "render",
+                data: {
+                  type: "socket",
+                  side: "input",
+                  key,
+                  nodeId: data.id,
+                  element,
+                  payload: input.socket,
+                },
+              })}
+            unmount={(ref) => emit({ type: "unmount", data: { element: ref } })}
+          />
+          {#if !input.control || !input.showControl}
+            <div class="input-title" data-testid="input-title">
+              {input.label || ""}
+            </div>
+          {/if}
+          {#if input.control && input.showControl}
+            <Ref
+              class="input-control"
+              data-testid="input-control"
+              init={(element) =>
+                emit({
+                  type: "render",
+                  data: {
+                    type: "control",
+                    element,
+                    payload: any(input).control,
+                  },
+                })}
+              unmount={(ref) =>
+                emit({ type: "unmount", data: { element: ref } })}
+            />
+          {/if}
         </div>
-      {/if}
-      {#if input.control && input.showControl}
-        <Ref
-          class="input-control"
-          data-testid="input-control"
-          init={(element) =>
-            emit({
-              type: "render",
-              data: {
-                type: "control",
-                element,
-                payload: any(input).control,
-              },
-            })}
-          unmount={(ref) => emit({ type: "unmount", data: { element: ref } })}
-        />
-      {/if}
+      {/each}
     </div>
-  {/each}
+
+    <!-- Controls -->
+    {#each controls as [key, control]}
+      <Ref
+        class="control"
+        data-testid={"control-" + key}
+        init={(element) =>
+          emit({
+            type: "render",
+            data: {
+              type: "control",
+              element,
+              payload: control,
+            },
+          })}
+        unmount={(ref) => emit({ type: "unmount", data: { element: ref } })}
+      />
+    {/each}
+
+    <div class="node-body-outputs">
+      <!-- Outputs -->
+      {#each outputs as [key, output]}
+        <div class="output" data-testid="'output-'+key">
+          <div class="output-title" data-testid="output-title">
+            {output.label || ""}
+          </div>
+          <Ref
+            class="output-socket"
+            data-testid="output-socket"
+            init={(element) =>
+              emit({
+                type: "render",
+                data: {
+                  type: "socket",
+                  side: "output",
+                  key,
+                  nodeId: data.id,
+                  element,
+                  payload: output.socket,
+                },
+              })}
+            unmount={(ref) => emit({ type: "unmount", data: { element: ref } })}
+          />
+        </div>
+      {/each}
+    </div>
+  </div>
 </div>
 
 <style lang="scss">
   @use "sass:math";
-  @import "./vars.sass";
+  @import "../vars.sass";
 
   .node {
     background: #008ecc;
-    border: 2px solid #008ecc;
     border-radius: 10px;
     cursor: pointer;
     box-sizing: border-box;
-    width: $node-width;
     height: auto;
     padding-bottom: 6px;
     position: relative;
@@ -147,9 +152,9 @@
       transition: 0.2s ease;
     }
 
-    &.selected {
-      border-color: blue;
-    }
+    /*&.selected {
+      border-color: blue; 
+    }*/
 
     .title {
       color: white;
@@ -174,7 +179,7 @@
 
     :global(.input-socket) {
       text-align: left;
-      margin-left: -1px;
+      margin-left: -20px;
       display: inline-block;
     }
 
@@ -200,5 +205,9 @@
       display: block;
       padding: $socket-margin math.div($socket-size, 2) + $socket-margin;
     }
+  }
+
+  .node-body {
+    display: flex;
   }
 </style>

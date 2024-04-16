@@ -5,14 +5,21 @@ import {
   Presets as ConnectionPresets,
 } from "rete-connection-plugin";
 import { SveltePlugin, Presets, type SvelteArea2D } from "rete-svelte-plugin";
-import CustomNode from "./editor/CustomNode.svelte";
+import CustomNode from "./editor/nodes/CustomNode.svelte";
 import { new_node } from "./editor/utils";
+import DropDown from "./editor/nodes/DropDown.svelte";
 
 type Schemes = GetSchemes<
   ClassicPreset.Node,
   ClassicPreset.Connection<ClassicPreset.Node, ClassicPreset.Node>
 >;
 type AreaExtra = SvelteArea2D<Schemes>;
+
+export class DropDownControl extends ClassicPreset.Control {
+  constructor(public name: string, public options: string[]) {
+    super();
+  }
+}
 
 export default class Editor {
   socket = new ClassicPreset.Socket("socket");
@@ -31,6 +38,11 @@ export default class Editor {
     this.render.addPreset(
       Presets.classic.setup({
         customize: {
+          control(data) {
+            if (data.payload instanceof DropDownControl) {
+              return DropDown as any;
+            }
+          },
           node() {
             return CustomNode;
           },
@@ -47,7 +59,22 @@ export default class Editor {
 
     AreaExtensions.simpleNodesOrder(this.area);
 
-    this.editor.addNode(new_node("test", this.socket, [], ["output"], "test"));
+    let node = new_node(
+      "test",
+      this.socket,
+      ["first"],
+      ["output", "second"],
+      "test"
+    );
+
+    let dropdown_control = new DropDownControl("dropdown", [
+      "Option 1",
+      "Option 2",
+      "Option 3",
+    ]);
+    node.addControl("dropdown", dropdown_control);
+
+    this.editor.addNode(node);
 
     setTimeout(() => {
       // wait until nodes rendered because they dont have predefined width and height

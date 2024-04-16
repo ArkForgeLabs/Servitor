@@ -1,0 +1,61 @@
+:root {
+  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+
+  color-scheme: dark;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+
+  /** CSS DARK THEME PRIMARY COLORS */
+  --color-primary-100: #03a9f4;
+  --color-primary-200: #4ab2f5;
+  --color-primary-300: #6abcf7;
+  --color-primary-400: #84c5f8;
+  --color-primary-500: #9bcefa;
+  --color-primary-600: #b1d8fb;
+  /** CSS DARK THEME SURFACE COLORS */
+  --color-surface-100: #121212;
+  --color-surface-200: #282828;
+  --color-surface-300: #3f3f3f;
+  --color-surface-400: #575757;
+  --color-surface-500: #717171;
+  --color-surface-600: #8b8b8b;
+  /** CSS DARK THEME MIXED SURFACE COLORS */
+  --color-surface-mixed-100: #191f25;
+  --color-surface-mixed-200: #2e3439;
+  --color-surface-mixed-300: #454a4f;
+  --color-surface-mixed-400: #5d6166;
+  --color-surface-mixed-500: #76797e;
+  --color-surface-mixed-600: #8f9396;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.disable-select {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+::-webkit-scrollbar {
+  width: 1em;
+}
+
+::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 6px rgb(30, 30, 30);
+  background: rgb(30, 30, 30);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgb(60, 60, 60);
+}
