@@ -137,7 +137,7 @@
   @import "../vars.sass";
 
   .node {
-    background: #008ecc;
+    background: var(--color-surface-200);
     border-radius: 10px;
     cursor: pointer;
     box-sizing: border-box;
@@ -148,7 +148,6 @@
     transition: 0.2s ease;
 
     &:hover {
-      background: #0f52ba;
       transition: 0.2s ease;
     }
 
@@ -158,6 +157,9 @@
 
     .title {
       color: white;
+      background: var(--color-surface-300);
+      border-top-left-radius: 10px;
+      border-top-right-radius: 10px;
       font-family: sans-serif;
       font-size: 18px;
       padding: 8px;
@@ -183,6 +185,11 @@
       display: inline-block;
     }
 
+    :global(.input-socket) > :global(.socket),
+    :global(.output-socket) > :global(.socket) {
+      background: var(--color-surface-300);
+    }
+
     .input-title,
     .output-title {
       vertical-align: middle;
@@ -191,7 +198,13 @@
       font-family: sans-serif;
       font-size: 14px;
       margin: $socket-margin;
+      margin-right: -5px;
       line-height: $socket-size;
+    }
+
+    .input-title {
+      margin-left: -5px;
+      margin-right: 0;
     }
 
     :global(.input-control) {

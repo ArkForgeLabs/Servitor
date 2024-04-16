@@ -51,7 +51,7 @@
   #node_list_container_parent {
     display: flex;
     flex-direction: column;
-    background: white;
+    background: var(--color-surface-200);
     height: 100vh;
     width: 150px;
   }

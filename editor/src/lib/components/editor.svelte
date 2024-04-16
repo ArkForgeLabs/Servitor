@@ -22,9 +22,9 @@
     font-size: 1rem;
     text-align: left;
 
-    background-size: 40px 40px;
+    /*background-size: 40px 40px;
     background-image: linear-gradient(to right, darkgrey 1px, transparent 1px),
-      linear-gradient(to bottom, darkgrey 1px, transparent 1px);
+      linear-gradient(to bottom, darkgrey 1px, transparent 1px);*/
   }
 
   :global(body) {
