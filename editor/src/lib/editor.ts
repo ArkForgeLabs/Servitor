@@ -6,7 +6,7 @@ import {
 } from "rete-connection-plugin";
 import { SveltePlugin, Presets, type SvelteArea2D } from "rete-svelte-plugin";
 import CustomNode from "./editor/nodes/CustomNode.svelte";
-import { new_node, type NodeData, type Connection } from "./editor/utils";
+import { type NodeData, type Connection } from "./editor/utils";
 import DropDown from "./editor/nodes/DropDown.svelte";
 
 type Schemes = GetSchemes<
@@ -41,6 +41,9 @@ export default class Editor {
           control(data) {
             if (data.payload instanceof DropDownControl) {
               return DropDown as any;
+            }
+            if (data.payload instanceof ClassicPreset.InputControl) {
+              return Presets.classic.Control as any;
             }
           },
           node() {
@@ -117,6 +120,19 @@ export default class Editor {
     }
 
     return data;
+  }
+
+  removeNode(id: string) {
+    let node = this.editor.getNode(id);
+
+    let connections = this.editor.getConnections();
+    connections.forEach((conn) => {
+      if (conn.source === id || conn.target === id) {
+        this.editor.removeConnection(conn.id);
+      }
+    });
+
+    this.editor.removeNode(id);
   }
 
   destroy() {

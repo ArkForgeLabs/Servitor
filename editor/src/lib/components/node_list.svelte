@@ -3,6 +3,26 @@
   import NodeListButton from "./node_list_button.svelte";
   import { editor_store } from "$lib/store";
   import { new_node, type NodeData } from "$lib/editor/utils";
+  import {
+    string_type,
+    number_type,
+    math_basic,
+  } from "$lib/editor/basic_types";
+
+  let available_nodes = [
+    {
+      label: "Number",
+      node_initializer: number_type,
+    },
+    {
+      label: "String",
+      node_initializer: string_type,
+    },
+    {
+      label: "Math",
+      node_initializer: math_basic,
+    },
+  ];
 
   let nodes: NodeData[] = [
     {
@@ -44,7 +64,8 @@
             node.label,
             editor.socket,
             node.inputs,
-            node.outputs
+            node.outputs,
+            node.id
           );
 
           await editor.editor.addNode(node_to_add);
@@ -70,15 +91,10 @@
 </script>
 
 <div id="node_list_container_parent">
-  {#each nodes as node}
+  {#each available_nodes as node}
     <NodeListButton
       onDrop={async (x, y) => {
-        let node_to_add = new_node(
-          node.label,
-          editor.socket,
-          node.inputs,
-          node.outputs
-        );
+        let node_to_add = node.node_initializer(editor.socket);
         await editor.editor.addNode(node_to_add);
 
         editor.area.area.setPointerFrom(
@@ -93,6 +109,12 @@
       <button>{node.label}</button>
     </NodeListButton>
   {/each}
+
+  <button
+    on:click={() => {
+      console.log(editor.toJSON());
+    }}>test</button
+  >
 </div>
 
 <style>

@@ -1,6 +1,16 @@
 <script lang="ts">
+  import type Editor from "$lib/components/editor.svelte";
+  import { editor_store } from "$lib/store";
   import type { ClassicScheme, SvelteArea2D } from "rete-svelte-plugin";
   import { Ref } from "rete-svelte-plugin";
+
+  let editor: Editor;
+  editor_store.subscribe((value: Editor) => {
+    if (value) {
+      editor = value;
+    }
+  });
+
   type NodeExtraData = { width?: number; height?: number };
 
   function sortByIndex<K, I extends undefined | { index?: number }>(
@@ -34,7 +44,17 @@
   style:height
   data-testid="node"
 >
-  <div class="title" data-testid="title">{data.label}</div>
+  <div class="title" data-testid="title">
+    <span>{data.label}</span>
+
+    <span on:pointerdown|stopPropagation={() => null}>
+      <button
+        on:click={() => {
+          editor.removeNode(data.id);
+        }}>X</button
+      >
+    </span>
+  </div>
 
   <div class="node-body">
     <div class="node-body-inputs">
@@ -163,6 +183,26 @@
       font-family: sans-serif;
       font-size: 18px;
       padding: 8px;
+
+      display: grid;
+      grid-auto-flow: column;
+      gap: 10px;
+    }
+
+    .title > span {
+      justify-self: end;
+    }
+    .title > span > button {
+      padding: 5px 7.5px;
+      background: none;
+      transition: 0.25s ease;
+      border: none;
+      transform: scaleX(1.1);
+    }
+    .title > span > button:hover {
+      cursor: pointer;
+      background: var(--color-surface-400);
+      transition: 0.25s ease;
     }
 
     .output {
@@ -217,6 +257,10 @@
     :global(.control) {
       display: block;
       padding: $socket-margin math.div($socket-size, 2) + $socket-margin;
+    }
+    :global(.control) > :global(input) {
+      color: black;
+      border-radius: 5px;
     }
   }
 

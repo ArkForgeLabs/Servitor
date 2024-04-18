@@ -1,4 +1,5 @@
 import { new_node } from "./utils";
+import { DropDownControl } from "$lib/editor";
 import { ClassicPreset } from "rete";
 
 // ============= Primitive Types =============
@@ -23,26 +24,22 @@ export function number_type(socket: ClassicPreset.Socket) {
 }
 
 // ============ Math Types =============
-function math_node(name: string, socket: ClassicPreset.Socket) {
+export function math_basic(socket: ClassicPreset.Socket) {
   let node = new_node(
-    name,
+    "Math",
     socket,
     ["first number", "second number"],
     ["output"]
   );
 
-  return node;
-}
+  let dropdown_control = new DropDownControl("math", [
+    "add",
+    "sub",
+    "mul",
+    "div",
+  ]);
 
-export function add_type(socket: ClassicPreset.Socket) {
-  return math_node("Add", socket);
-}
-export function subtract_type(socket: ClassicPreset.Socket) {
-  return math_node("Subtract", socket);
-}
-export function multiply_type(socket: ClassicPreset.Socket) {
-  return math_node("Multiply", socket);
-}
-export function divide_type(socket: ClassicPreset.Socket) {
-  return math_node("Divide", socket);
+  node.addControl("operation", dropdown_control);
+
+  return node;
 }
