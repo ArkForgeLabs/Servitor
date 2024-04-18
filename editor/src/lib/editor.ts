@@ -6,7 +6,7 @@ import {
 } from "rete-connection-plugin";
 import { SveltePlugin, Presets, type SvelteArea2D } from "rete-svelte-plugin";
 import CustomNode from "./editor/nodes/CustomNode.svelte";
-import { new_node } from "./editor/utils";
+import { new_node, type NodeData, type Connection } from "./editor/utils";
 import DropDown from "./editor/nodes/DropDown.svelte";
 
 type Schemes = GetSchemes<
@@ -59,7 +59,7 @@ export default class Editor {
 
     AreaExtensions.simpleNodesOrder(this.area);
 
-    let node = new_node(
+    /*let node = new_node(
       "test",
       this.socket,
       ["first"],
@@ -74,7 +74,7 @@ export default class Editor {
     ]);
     node.addControl("dropdown", dropdown_control);
 
-    this.editor.addNode(node);
+    this.editor.addNode(node); */
 
     setTimeout(() => {
       // wait until nodes rendered because they dont have predefined width and height
@@ -83,16 +83,22 @@ export default class Editor {
   }
 
   toJSON() {
-    const data: any = [];
+    const data: NodeData[] = [];
     const nodes = this.editor.getNodes();
     const connections = this.editor.getConnections();
 
     for (const node of nodes) {
-      let connection: any = {};
+      let connection: Connection | undefined;
 
       for (const conn of connections) {
         if (conn.source === node.id) {
-          connection = conn;
+          connection = {
+            id: conn.id,
+            source: conn.source,
+            target: conn.target,
+            source_output: conn.sourceOutput,
+            target_input: conn.targetInput,
+          };
           break;
         }
       }
@@ -102,9 +108,9 @@ export default class Editor {
       data.push({
         id: node.id,
         label: node.label,
-        inputs: node.inputs,
-        controls: node.controls,
-        outputs: node.outputs,
+        inputs: JSON.parse(JSON.stringify(node.inputs)),
+        controls: JSON.parse(JSON.stringify(node.controls)),
+        outputs: JSON.parse(JSON.stringify(node.outputs)),
         connection: connection,
         position: [node_position?.x, node_position?.y],
       });
