@@ -16,7 +16,7 @@ type Schemes = GetSchemes<
 type AreaExtra = SvelteArea2D<Schemes>;
 
 export class DropDownControl extends ClassicPreset.Control {
-  constructor(public name: string, public options: string[]) {
+  constructor(public name: string, public options: string[], public value = 0) {
     super();
   }
 }
@@ -62,23 +62,6 @@ export default class Editor {
 
     AreaExtensions.simpleNodesOrder(this.area);
 
-    /*let node = new_node(
-      "test",
-      this.socket,
-      ["first"],
-      ["output", "second"],
-      "test"
-    );
-
-    let dropdown_control = new DropDownControl("dropdown", [
-      "Option 1",
-      "Option 2",
-      "Option 3",
-    ]);
-    node.addControl("dropdown", dropdown_control);
-
-    this.editor.addNode(node); */
-
     setTimeout(() => {
       // wait until nodes rendered because they dont have predefined width and height
       AreaExtensions.zoomAt(this.area, this.editor.getNodes());
@@ -107,13 +90,25 @@ export default class Editor {
       }
 
       let node_position = this.area.nodeViews.get(node.id)?.position;
+      let controls: Map<
+        string,
+        { name: string; value: string | number | boolean }
+      > = new Map();
+      Object.keys(node.controls).map((key: string) => {
+        controls[key] = {
+          //@ts-ignore
+          name: node.controls[key]?.name,
+          //@ts-ignore
+          value: node.controls[key]?.value,
+        };
+      });
 
       data.push({
         id: node.id,
         label: node.label,
-        inputs: JSON.parse(JSON.stringify(node.inputs)),
-        controls: JSON.parse(JSON.stringify(node.controls)),
-        outputs: JSON.parse(JSON.stringify(node.outputs)),
+        inputs: Object.values(node.inputs).map((input) => input?.label),
+        controls: controls,
+        outputs: Object.values(node.outputs).map((output) => output?.label),
         connection: connection,
         position: [node_position?.x, node_position?.y],
       });
@@ -139,17 +134,3 @@ export default class Editor {
     this.area.destroy();
   }
 }
-
-/*let node = new_node("test", socket, [], ["output"]);
-  editor.addNode(node);
-
-  area.container.addEventListener("click", async (e) => {
-    console.log(e);
-
-    area.area.setPointerFrom(e);
-
-    let position = area.area.pointer;
-    let view = area.nodeViews.get(node.id);
-
-    await view?.translate(position.x, position.y);
-  }); */

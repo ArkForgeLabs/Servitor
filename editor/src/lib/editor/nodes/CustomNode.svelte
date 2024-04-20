@@ -47,7 +47,10 @@
   <div class="title" data-testid="title">
     <span>{data.label}</span>
 
-    <span on:pointerdown|stopPropagation={() => null}>
+    <span
+      on:pointerdown|stopPropagation={() => null}
+      style="justify-self: end;"
+    >
       <button
         on:click={() => {
           editor.removeNode(data.id);
@@ -183,15 +186,13 @@
       font-family: sans-serif;
       font-size: 18px;
       padding: 8px;
+      margin-bottom: 10px;
 
       display: grid;
       grid-auto-flow: column;
       gap: 10px;
     }
 
-    .title > span {
-      justify-self: end;
-    }
     .title > span > button {
       padding: 5px 7.5px;
       background: none;

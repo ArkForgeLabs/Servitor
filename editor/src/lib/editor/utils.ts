@@ -11,9 +11,9 @@ export type Connection = {
 export type NodeData = {
   id: string;
   label: string;
-  inputs: string[];
-  outputs: string[];
-  controls: string[];
+  inputs: (string | undefined)[];
+  outputs: (string | undefined)[];
+  controls: Map<string, { name: string; value: string | number | boolean }>;
   connection: Connection | undefined;
   position: [number | undefined, number | undefined];
 };

@@ -17,7 +17,7 @@
 <style>
   .rete {
     position: relative;
-    width: calc(100vw - 150px);
+    width: calc(100vw - 75px);
     height: 100vh;
     font-size: 1rem;
     text-align: left;

@@ -8,48 +8,26 @@
     number_type,
     math_basic,
   } from "$lib/editor/basic_types";
+  import { IconAbc, Icon123, IconCalculator } from "@tabler/icons-svelte";
 
   let available_nodes = [
     {
       label: "Number",
       node_initializer: number_type,
+      icon: Icon123,
     },
     {
       label: "String",
       node_initializer: string_type,
+      icon: IconAbc,
     },
     {
       label: "Math",
       node_initializer: math_basic,
+      icon: IconCalculator,
     },
   ];
-
-  let nodes: NodeData[] = [
-    {
-      id: "first",
-      label: "first",
-      inputs: [],
-      outputs: ["output"],
-      controls: [],
-      connection: {
-        id: "test first",
-        source: "first",
-        target: "second",
-        source_output: "output",
-        target_input: "input",
-      },
-      position: [0, 0],
-    },
-    {
-      id: "second",
-      label: "second",
-      inputs: ["input"],
-      outputs: [],
-      controls: [],
-      connection: undefined,
-      position: [200, 100],
-    },
-  ];
+  let nodes: NodeData[] = [];
 
   let once = false;
 
@@ -91,6 +69,7 @@
 </script>
 
 <div id="node_list_container_parent">
+  <span>Nodes</span>
   {#each available_nodes as node}
     <NodeListButton
       onDrop={async (x, y) => {
@@ -106,7 +85,7 @@
         await view?.translate(position.x, position.y);
       }}
     >
-      <button>{node.label}</button>
+      <svelte:component this={node.icon} size={35} />
     </NodeListButton>
   {/each}
 
@@ -123,6 +102,7 @@
     flex-direction: column;
     background: var(--color-surface-200);
     height: 100vh;
-    width: 150px;
+    width: 75px;
+    align-items: center;
   }
 </style>
