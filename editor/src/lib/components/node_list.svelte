@@ -2,7 +2,8 @@
   import type Editor from "$lib/editor";
   import NodeListButton from "./node_list_button.svelte";
   import { editor_store } from "$lib/store";
-  import { new_node, type NodeData } from "$lib/editor/utils";
+  import { new_node } from "$lib/editor/utils";
+  import { type NodeData } from "$lib/types";
   import {
     string_type,
     number_type,

@@ -6,7 +6,7 @@ import {
 } from "rete-connection-plugin";
 import { SveltePlugin, Presets, type SvelteArea2D } from "rete-svelte-plugin";
 import CustomNode from "./editor/nodes/CustomNode.svelte";
-import { type NodeData, type Connection } from "./editor/utils";
+import { type NodeData, type Connection, type Control } from "./types";
 import DropDown from "./editor/nodes/DropDown.svelte";
 
 type Schemes = GetSchemes<
@@ -90,10 +90,7 @@ export default class Editor {
       }
 
       let node_position = this.area.nodeViews.get(node.id)?.position;
-      let controls: Map<
-        string,
-        { name: string; value: string | number | boolean }
-      > = new Map();
+      let controls: Record<string, Control> = {};
       Object.keys(node.controls).map((key: string) => {
         controls[key] = {
           //@ts-ignore

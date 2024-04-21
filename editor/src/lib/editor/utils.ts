@@ -1,23 +1,5 @@
 import { ClassicPreset } from "rete";
 
-export type Connection = {
-  id: string;
-  source: string;
-  target: string;
-  source_output: string;
-  target_input: string;
-};
-
-export type NodeData = {
-  id: string;
-  label: string;
-  inputs: (string | undefined)[];
-  outputs: (string | undefined)[];
-  controls: Map<string, { name: string; value: string | number | boolean }>;
-  connection: Connection | undefined;
-  position: [number | undefined, number | undefined];
-};
-
 export function new_node(
   name: string,
   socket: ClassicPreset.Socket,
