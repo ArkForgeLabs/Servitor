@@ -9,8 +9,7 @@ mod services;
 #[derive(Debug)]
 pub struct AppState {
     pub services: std::sync::Mutex<services::Services>,
-    pub sender: crossbeam_channel::Sender<database::Message>,
-    pub receiver: crossbeam_channel::Receiver<database::Message>,
+    pub sender: std::sync::mpsc::Sender<database::Message>,
 }
 /*
 #[get("/test")]
@@ -24,23 +23,34 @@ pub async fn test(sender: Data<AppState>) -> actix_web::Result<HttpResponse> {
 }
 */
 
+#[actix_web::get("/test")]
+pub async fn test(app: web::Data<AppState>) -> actix_web::Result<actix_web::HttpResponse> {
+    let (send, receive) = std::sync::mpsc::channel::<database::Message>();
+
+    app.sender
+        .send(database::Message::Ping(
+            "test".to_string(),
+            "hello".to_string(),
+            send,
+        ))
+        .unwrap();
+
+    let response = receive.recv();
+    println!("Response: {:?}", response);
+
+    Ok(actix_web::HttpResponse::Ok().finish())
+}
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    let (send, receive) = crossbeam_channel::unbounded::<database::Message>();
+    let (send, receiver) = std::sync::mpsc::channel::<database::Message>();
 
     let app_data = web::Data::new(AppState {
         services: std::sync::Mutex::new(services::Services::new()),
         sender: send.clone(),
-        receiver: receive.clone(),
     });
 
-    let database_receiver = receive.clone();
-    let database_sender = send.clone();
-    database::database(
-        "database.db".to_string(),
-        database_sender,
-        database_receiver,
-    );
+    database::database("database.db".to_string(), receiver);
 
     let heartbeat_clone = app_data.clone();
     thread::spawn(move || loop {
@@ -55,7 +65,8 @@ async fn main() -> std::io::Result<()> {
             .service(
                 web::scope("/apiv1")
                     .service(routesv1::get_service)
-                    .service(routesv1::create_service),
+                    .service(routesv1::create_service)
+                    .service(test),
             )
             .app_data(app_data.clone())
     })
