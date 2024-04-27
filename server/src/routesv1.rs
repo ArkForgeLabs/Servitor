@@ -4,6 +4,8 @@ use actix_web::{
     HttpResponse, Responder,
 };
 
+mod account;
+
 #[get("/")]
 pub async fn index() -> impl Responder {
     "Hello world!"
