@@ -69,14 +69,14 @@ impl Database {
 
     pub fn query(
         &self,
-        query: String,
+        query: &str,
         params: Vec<serde_json::Value>,
     ) -> Result<serde_json::Value, rusqlite::Error> {
         let (sender, receiver) = std::sync::mpsc::channel();
 
         if self
             .sender
-            .send(Message::Query(query, params, sender))
+            .send(Message::Query(query.to_string(), params, sender))
             .is_err()
         {
             return Err(rusqlite::Error::InvalidQuery);

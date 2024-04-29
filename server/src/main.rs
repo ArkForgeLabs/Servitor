@@ -5,6 +5,7 @@ use std::thread;
 mod database;
 mod routesv1;
 mod services;
+mod utils;
 
 #[derive(Debug)]
 pub struct AppState {
@@ -29,17 +30,22 @@ async fn main() -> std::io::Result<()> {
         services.heartbeat();
     });
 
-    HttpServer::new(move || {
+    let server = HttpServer::new(move || {
         App::new()
             .service(routesv1::index)
             .service(
                 web::scope("/apiv1")
                     .service(routesv1::get_service)
-                    .service(routesv1::create_service),
+                    .service(routesv1::create_service)
+                    // account
+                    .service(routesv1::account::create_account)
+                    .service(routesv1::account::get_account),
             )
             .app_data(app_data.clone())
-    })
-    .bind(("127.0.0.1", 8080))?
-    .run()
-    .await
+    });
+    let server = server.bind(("0.0.0.0", 8080))?;
+
+    println!("started server at: 0.0.0.0:8080");
+
+    server.run().await
 }

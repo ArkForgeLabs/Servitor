@@ -4,7 +4,7 @@ use actix_web::{
     HttpResponse, Responder,
 };
 
-mod account;
+pub mod account;
 
 #[get("/")]
 pub async fn index() -> impl Responder {
