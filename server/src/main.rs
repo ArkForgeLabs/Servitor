@@ -1,4 +1,4 @@
-use actix_web::{web, App, HttpServer};
+use actix_web::{middleware::Logger, web, App, HttpServer};
 use std::thread;
 
 // components
@@ -15,8 +15,11 @@ pub struct AppState {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    let (send, receiver) = std::sync::mpsc::channel::<database::Message>();
-    let database = database::Database::new("database.db".to_string(), send.clone(), receiver);
+    // access logs are printed with the INFO level so ensure it is enabled by default
+    env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
+    let database = database::Database::new()
+        .await
+        .expect("Failed to initialize database");
 
     let app_data = web::Data::new(AppState {
         services: std::sync::Mutex::new(services::Services::new()),
@@ -37,15 +40,17 @@ async fn main() -> std::io::Result<()> {
                 web::scope("/apiv1")
                     .service(routesv1::get_service)
                     .service(routesv1::create_service)
+                    .service(routesv1::create)
                     // account
                     .service(routesv1::account::create_account)
                     .service(routesv1::account::get_account),
             )
+            .wrap(Logger::new("%a %{User-Agent}i"))
             .app_data(app_data.clone())
     });
     let server = server.bind(("0.0.0.0", 8080))?;
 
-    println!("started server at: 0.0.0.0:8080");
+    println!("started server at: 0.0.0.0:{}", 8080);
 
     server.run().await
 }
