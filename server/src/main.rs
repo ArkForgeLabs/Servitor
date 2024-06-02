@@ -41,6 +41,7 @@ async fn main() -> std::io::Result<()> {
                     .service(routesv1::get_service)
                     .service(routesv1::create_service)
                     .service(routesv1::create)
+                    .service(routesv1::get_all)
                     // account
                     .service(routesv1::account::create_account)
                     .service(routesv1::account::get_account),

@@ -6,9 +6,9 @@ use actix_web::{
 use serde_json::to_value;
 
 /// Account related structs and handlers
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize, PartialEq)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize, PartialEq, sqlx::FromRow)]
 pub struct Account {
-    pub id: u32,
+    pub id: i64,
     pub username: String,
     pub email: String,
     pub password: String,

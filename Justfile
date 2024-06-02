@@ -1,5 +1,5 @@
-prepare-db:
-    mkdir db-data
+prepare-db docker-ps:
+    docker -it exec {{docker-ps}} bash
     
 start-db:
     docker compose up
