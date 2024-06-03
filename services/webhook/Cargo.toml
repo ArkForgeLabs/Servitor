@@ -1,0 +1,14 @@
+[package]
+name = "webhook"
+version.workspace = true
+authors = ["Elham Aryanpur <elhamaryanpur5@gmail.com>"]
+license.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish = false
+
+[dependencies]
+actix-web = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+reqwest = { workspace = true, features = ["json"] }
