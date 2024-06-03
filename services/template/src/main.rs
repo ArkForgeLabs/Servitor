@@ -60,17 +60,16 @@ async fn main() -> std::io::Result<()> {
         .post("http://localhost:8080/apiv1/create_service")
         .json(
             &serde_json::to_string(&Service::new(
-                502,
-                "webhook".to_string(),
-                "webhook".to_string(),
+                501,
+                "template".to_string(),
+                "template".to_string(),
                 serde_json::to_value(Input::default())?,
                 serde_json::to_value(Output::default())?,
             ))?
             .to_string(),
         )
         .send()
-        .await
-        .unwrap();
+        .await.unwrap();
 
     println!("Response: {:?}", response);
 

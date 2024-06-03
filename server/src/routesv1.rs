@@ -4,6 +4,7 @@ use actix_web::{
     HttpResponse, Responder,
 };
 use serde::de::Error;
+use utils::Service;
 
 pub mod account;
 pub mod nodes;
@@ -17,7 +18,7 @@ pub async fn index() -> impl Responder {
 pub async fn get_service(
     service_id: web::Path<u16>,
     app_data: web::Data<crate::AppState>,
-) -> actix_web::Result<Json<crate::services::Service>> {
+) -> actix_web::Result<Json<Service>> {
     let services = app_data.services.lock().unwrap();
     let service = services.get_service(service_id.into_inner());
 
@@ -30,7 +31,7 @@ pub async fn get_service(
 
 #[post("/create_service")]
 pub async fn create_service(
-    service: Json<crate::services::Service>,
+    service: Json<Service>,
     app_data: web::Data<crate::AppState>,
 ) -> impl Responder {
     let mut services = app_data.services.lock().unwrap();

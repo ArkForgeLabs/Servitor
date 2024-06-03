@@ -1,5 +1,6 @@
 use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
 use ollama_rs::generation::completion::request::GenerationRequest;
+use utils::Service;
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct Input {
@@ -84,9 +85,19 @@ async fn input(
 async fn main() -> std::io::Result<()> {
     let response = reqwest::Client::new()
         .post("http://localhost:8080/apiv1/create_service")
-        .json(&serde_json::json!({"id": 501, "name": "AI", "description": "AI", "input_structure": Input::default(), "output_structure": Output::default()}))
+        .json(
+            &serde_json::to_string(&Service::new(
+                501,
+                "ollama".to_string(),
+                "ollama".to_string(),
+                serde_json::to_value(Input::default())?,
+                serde_json::to_value(Output::default())?,
+            ))?
+            .to_string(),
+        )
         .send()
-        .await.unwrap();
+        .await
+        .unwrap();
 
     println!("Response: {:?}", response);
 
