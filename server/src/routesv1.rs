@@ -101,8 +101,6 @@ pub async fn create(
         }
     );
 
-    println!("query: {}", query);
-
     // Prepare the SQL query with the extracted values and execute it using the database connection pool.
     let mut prepared_query = sqlx::query(&query);
     for i in values {
