@@ -25,3 +25,35 @@ services:
       resources:
         limits:
           memory: 300M
+
+  webhook: &deno
+    image: denoland/deno:alpine
+    labels:
+      function: "true"
+    environment:
+      NODE_ENV: "production"
+    shm_size: 25mb
+    restart: always
+    memswap_limit: 50M
+
+    volumes:
+      - ./services/webhook:/app
+    ports:
+      - 501:3000
+    expose:
+      - "3000"
+
+    command: run --allow-net /app/main.ts
+
+    deploy:
+      resources:
+        limits:
+          memory: 25M
+          cpus: "1.0"
+
+  math:
+    <<: *deno
+    volumes:
+      - ./services/math:/app
+    ports:
+      - 502:3000
