@@ -43,7 +43,7 @@ services:
     expose:
       - "3000"
 
-    command: run --allow-net /app/main.ts
+    command: run --allow-net --v8-flags=--lite-mode,--optimize-for-size /app/main.ts
 
     deploy:
       resources:
