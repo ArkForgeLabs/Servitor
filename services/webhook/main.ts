@@ -30,13 +30,27 @@ interface Input {
 }
 
 const server = new Server();
+
 // deno-lint-ignore no-explicit-any
-server.get("/input_structure", res("json"), async (ctx: any, next: any) => {
+server.get("/heartbeat", async (ctx: any, next: any) => {
+  ctx.res.status = 200;
+  ctx.res.body = { message: "Server is running" };
+  await next();
+});
+
+// deno-lint-ignore no-explicit-any
+server.get("/info", res("json"), async (ctx: any, next: any) => {
   ctx.res.body = {
-    url: "string",
-    method: "string",
-    headers: "object",
-    body: "string",
+    name: "Webhook",
+    description: "A simple webhook service that can send messages to webhooks",
+    version: "1.0.0",
+    input_structure: {
+      url: "string",
+      method: "string",
+      headers: "object",
+      body: "string",
+    },
+    output_structure: {},
   };
   await next();
 });

@@ -4,6 +4,7 @@ pub struct Service {
     pub id: u16,
     pub name: String,
     pub description: String,
+    pub version: String,
     pub input_structure: serde_json::Value,
     pub output_structure: serde_json::Value,
 }
@@ -13,6 +14,7 @@ impl Service {
         id: u16,
         name: String,
         description: String,
+        version: String,
         input_structure: serde_json::Value,
         output_structure: serde_json::Value,
     ) -> Self {
@@ -20,6 +22,7 @@ impl Service {
             id,
             name,
             description,
+            version,
             input_structure,
             output_structure,
         }

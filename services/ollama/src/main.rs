@@ -90,6 +90,7 @@ async fn main() -> std::io::Result<()> {
                 501,
                 "ollama".to_string(),
                 "ollama".to_string(),
+                "1.0.0".to_string(),
                 serde_json::to_value(Input::default())?,
                 serde_json::to_value(Output::default())?,
             ))?

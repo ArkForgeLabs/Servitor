@@ -22,7 +22,7 @@ async fn main() -> std::io::Result<()> {
         .expect("Failed to initialize database");
 
     let app_data = web::Data::new(AppState {
-        services: std::sync::Mutex::new(services::Services::new()),
+        services: std::sync::Mutex::new(services::Services::new().await),
         database,
     });
 
