@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type Editor from "$lib/components/editor.svelte";
+  import type Editor from "$lib/components/node_graph.svelte";
   import { editor_store } from "$lib/store";
   import type { ClassicScheme, SvelteArea2D } from "rete-svelte-plugin";
   import { Ref } from "rete-svelte-plugin";

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { DropDownControl } from "$lib/editor";
+  import { DropDownControl } from "$lib/node_graph";
   export let data: DropDownControl = new DropDownControl("", []);
 </script>
 

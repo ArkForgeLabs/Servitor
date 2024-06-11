@@ -1,11 +1,11 @@
 <script lang="ts">
-  import Editor from "$lib/components/editor.svelte";
+  import NodeGraph from "$lib/components/node_graph.svelte";
   import NodeList from "$lib/components/node_list.svelte";
 </script>
 
 <div>
   <NodeList />
-  <Editor />
+  <NodeGraph />
 </div>
 
 <style>

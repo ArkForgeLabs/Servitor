@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { editor_store } from "$lib/store";
-  import Editor from "$lib/editor";
+  import Editor from "$lib/node_graph";
 
   let el: any;
   let editor: Editor;

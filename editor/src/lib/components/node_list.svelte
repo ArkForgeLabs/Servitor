@@ -1,14 +1,14 @@
 <script lang="ts">
-  import type Editor from "$lib/editor";
+  import type Editor from "$lib/node_graph";
   import NodeListButton from "./node_list_button.svelte";
   import { editor_store } from "$lib/store";
-  import { new_node } from "$lib/editor/utils";
+  import { new_node } from "$lib/node_graph/utils";
   import { type NodeData } from "$lib/types";
   import {
     string_type,
     number_type,
     math_basic,
-  } from "$lib/editor/basic_types";
+  } from "$lib/node_graph/basic_types";
   import { IconAbc, Icon123, IconCalculator } from "@tabler/icons-svelte";
 
   let available_nodes = [

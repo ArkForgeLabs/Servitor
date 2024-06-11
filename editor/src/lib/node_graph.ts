@@ -5,9 +5,9 @@ import {
   Presets as ConnectionPresets,
 } from "rete-connection-plugin";
 import { SveltePlugin, Presets, type SvelteArea2D } from "rete-svelte-plugin";
-import CustomNode from "./editor/nodes/CustomNode.svelte";
+import CustomNode from "./node_graph/nodes/CustomNode.svelte";
 import { type NodeData, type Connection, type Control } from "./types";
-import DropDown from "./editor/nodes/DropDown.svelte";
+import DropDown from "./node_graph/nodes/DropDown.svelte";
 
 type Schemes = GetSchemes<
   ClassicPreset.Node,
