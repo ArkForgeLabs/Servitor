@@ -55,6 +55,7 @@ server.get("/info", res("json"), async (ctx: any, next: any) => {
   await next();
 });
 
+// deno-lint-ignore no-explicit-any
 server.post("/input", req("json"), async (ctx: any, next: any) => {
   try {
     // verify the input data is correct and safe before processing it.

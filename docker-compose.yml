@@ -51,9 +51,9 @@ services:
           memory: 25M
           cpus: "1.0"
 
-  math:
+  template_deno:
     <<: *deno
     volumes:
-      - ./services/math:/app
+      - ./services/template-deno:/app
     ports:
       - 502:3000
