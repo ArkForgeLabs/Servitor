@@ -1,8 +1,10 @@
 <script lang="ts">
-  import NodeGraph from "$lib/components/node_graph.svelte";
+  import TopBar from "$lib/components/top_bar.svelte";
   import NodeList from "$lib/components/node_list.svelte";
+  import NodeGraph from "$lib/components/node_graph.svelte";
 </script>
 
+<TopBar />
 <div>
   <NodeList />
   <NodeGraph />

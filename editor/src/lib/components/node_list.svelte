@@ -70,7 +70,6 @@
 </script>
 
 <div id="node_list_container_parent">
-  <span>Nodes</span>
   {#each available_nodes as node}
     <NodeListButton
       onDrop={async (x, y) => {
@@ -89,12 +88,6 @@
       <svelte:component this={node.icon} size={35} />
     </NodeListButton>
   {/each}
-
-  <button
-    on:click={() => {
-      console.log(editor.toJSON());
-    }}>test</button
-  >
 </div>
 
 <style>
@@ -105,5 +98,6 @@
     height: 100vh;
     width: 75px;
     align-items: center;
+    padding-top: 25px;
   }
 </style>

@@ -1,5 +1,5 @@
 import { new_node } from "./utils";
-import { DropDownControl } from "$lib/editor";
+import { DropDownControl } from "$lib/node_graph";
 import { ClassicPreset } from "rete";
 
 // ============= Primitive Types =============
