@@ -124,3 +124,47 @@ function call_service(service_name, data){
     .await
     .unwrap();
 }
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct NodeTreeItem {
+    pub id: String,
+    pub label: String,
+    pub controls: std::collections::HashMap<String, crate::routesv1::nodes::Control>,
+    pub connection: Option<crate::routesv1::nodes::Connection>,
+    pub children: Vec<NodeTreeItem>,
+}
+
+fn walk_tree(found_node: &mut NodeTreeItem, node: &NodeTreeItem, parent_id: &String) {
+    if &found_node.id == parent_id {
+        found_node.children.push(node.clone())
+    } else {
+        for child in found_node.children.iter_mut() {
+            walk_tree(child, node, parent_id);
+        }
+    }
+}
+
+pub fn generate_javascript_code(nodes_list: Vec<crate::routesv1::nodes::NodeData>) {
+    let nodes: Vec<NodeTreeItem> = nodes_list
+        .iter()
+        .map(|node| NodeTreeItem {
+            id: node.id.clone(),
+            label: node.label.clone(),
+            controls: node.controls.clone(),
+            connection: node.connection.clone(),
+            children: Vec::new(),
+        })
+        .collect();
+
+    let mut root = nodes[0].clone();
+
+    for node in nodes.iter() {
+        if node.connection.is_some() {
+            let parent_id = &node.connection.as_ref().unwrap().target;
+
+            walk_tree(&mut root, node, parent_id);
+        }
+    }
+
+    println!("{:?}", root);
+}

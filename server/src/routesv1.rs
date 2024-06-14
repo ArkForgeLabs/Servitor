@@ -9,11 +9,6 @@ use utils::Service;
 pub mod account;
 pub mod nodes;
 
-#[get("/")]
-pub async fn index() -> impl Responder {
-    "Hello world!"
-}
-
 #[get("/get_service/{service_id}")]
 pub async fn get_service(
     service_id: web::Path<u16>,

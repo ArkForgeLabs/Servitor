@@ -16,7 +16,7 @@ pub struct Connection {
 }
 
 #[typeshare]
-#[derive(Debug, Clone, serde::Deserialize, serde::Serialize, PartialEq, Eq)]
+#[derive(Debug, Clone, serde::Deserialize, serde::Serialize, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Control {
     pub name: String,
     pub value: String,

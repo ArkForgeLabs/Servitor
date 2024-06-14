@@ -9,7 +9,8 @@
     number_type,
     math_basic,
   } from "$lib/node_graph/basic_types";
-  import { IconAbc, Icon123, IconCalculator } from "@tabler/icons-svelte";
+
+  import { Icon123, IconAbc, IconCalculator } from "$lib/utils";
 
   let available_nodes = [
     {
@@ -85,7 +86,7 @@
         await view?.translate(position.x, position.y);
       }}
     >
-      <svelte:component this={node.icon} size={35} />
+      <svelte:component this={node.icon} />
     </NodeListButton>
   {/each}
 </div>

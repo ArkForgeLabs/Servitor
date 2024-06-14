@@ -22,7 +22,6 @@
   },
   "type": "module",
   "dependencies": {
-    "@tabler/icons-svelte": "^3.2.0",
     "rete-connection-plugin": "^2.0.1",
     "rete-render-utils": "^2.0.2",
     "rete-svelte-plugin": "^2.0.1",
