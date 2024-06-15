@@ -15,7 +15,13 @@
 
   <button
     on:click={() => {
-      console.log(editor.toJSON());
+      const JSON_FORM = editor.toJSON();
+      console.log(JSON_FORM);
+
+      fetch("/apiv1/graph/create", {
+        method: "POST",
+        body: JSON.stringify(JSON_FORM),
+      });
     }}>test</button
   >
 </div>

@@ -93,8 +93,12 @@ export default class Editor {
       let controls: Record<string, Control> = {};
       Object.keys(node.controls).map((key: string) => {
         controls[key] = {
-          //@ts-ignore
-          name: node.controls[key]?.name,
+          name:
+            //@ts-ignore
+            node.controls[key]?.name != undefined
+              ? //@ts-ignore
+                node.controls[key]?.name
+              : node.label,
           //@ts-ignore
           value: node.controls[key]?.value,
         };

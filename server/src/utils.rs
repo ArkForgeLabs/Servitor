@@ -125,7 +125,7 @@ function call_service(service_name, data){
     .unwrap();
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct NodeTreeItem {
     pub id: String,
     pub label: String,
@@ -157,6 +157,8 @@ pub fn generate_javascript_code(nodes_list: Vec<crate::routesv1::nodes::NodeData
         .collect();
 
     let mut root = nodes[0].clone();
+
+    println!("root {:?}", root);
 
     for node in nodes.iter() {
         if node.connection.is_some() {

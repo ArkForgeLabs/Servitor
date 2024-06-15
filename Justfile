@@ -16,4 +16,4 @@ build-editor:
 run-debug-server:
     cd server && cargo build && sudo target/debug/server
 
-run-debug: build-editor run-debug-server
+debug: build-editor run-debug-server
