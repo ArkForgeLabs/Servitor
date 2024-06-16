@@ -95,10 +95,14 @@
   #node_list_container_parent {
     display: flex;
     flex-direction: column;
-    background: var(--color-surface-200);
+    background: var(--darkreader-bg--color-surface-200);
     height: 100vh;
     width: 75px;
     align-items: center;
     padding-top: 25px;
+  }
+
+  #node_list_container_parent :global(svg) {
+    filter: invert();
   }
 </style>

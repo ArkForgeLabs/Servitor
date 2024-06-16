@@ -34,6 +34,6 @@
     align-items: center;
     height: 50px;
     width: 100vw;
-    background: var(--color-surface-200);
+    background: var(--darkreader-bg--color-surface-200);
   }
 </style>

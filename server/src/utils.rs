@@ -134,17 +134,62 @@ pub struct NodeTreeItem {
     pub children: Vec<NodeTreeItem>,
 }
 
-fn walk_tree(found_node: &mut NodeTreeItem, node: &NodeTreeItem, parent_id: &String) {
-    if &found_node.id == parent_id {
-        found_node.children.push(node.clone())
-    } else {
-        for child in found_node.children.iter_mut() {
-            walk_tree(child, node, parent_id);
+pub fn generate_javascript_code(nodes_list: Vec<crate::routesv1::nodes::NodeData>) {
+    fn walk_tree(found_node: &mut NodeTreeItem, node: &NodeTreeItem, parent_id: &String) {
+        if &found_node.id == parent_id {
+            found_node.children.push(node.clone())
+        } else {
+            for child in found_node.children.iter_mut() {
+                walk_tree(child, node, parent_id);
+            }
         }
     }
-}
 
-pub fn generate_javascript_code(nodes_list: Vec<crate::routesv1::nodes::NodeData>) {
+    fn walk_tree_and_generate_code(node: &NodeTreeItem, output: &mut String) {
+        let mut new_output = output.clone();
+
+        let children_ids = node
+            .children
+            .iter()
+            .map(|node| &node.id)
+            .collect::<Vec<&String>>();
+
+        match node.label.as_str() {
+            "Number" => {
+                new_output = format!(
+                    "  let var{} = {};\n",
+                    node.id,
+                    node.controls.get("value").unwrap().value.as_f64().unwrap()
+                ) + &new_output
+            }
+
+            "Math" => {
+                let operations = ["+", "-", "*", "/"];
+                let operation_index = &node
+                    .controls
+                    .get("operation")
+                    .unwrap()
+                    .value
+                    .as_u64()
+                    .unwrap();
+                let operation = operations.get(*operation_index as usize).unwrap_or(&&"+");
+
+                new_output = format!(
+                    "  let var{} = var{} {} var{}",
+                    node.id, children_ids[0], operation, children_ids[1]
+                ) + &new_output
+            }
+            _ => {}
+        }
+
+        output.clear();
+        output.insert_str(0, &new_output);
+
+        node.children.iter().for_each(|child_node| {
+            walk_tree_and_generate_code(child_node, output);
+        });
+    }
+
     let nodes: Vec<NodeTreeItem> = nodes_list
         .iter()
         .map(|node| NodeTreeItem {
@@ -158,8 +203,6 @@ pub fn generate_javascript_code(nodes_list: Vec<crate::routesv1::nodes::NodeData
 
     let mut root = nodes[0].clone();
 
-    println!("root {:?}", root);
-
     for node in nodes.iter() {
         if node.connection.is_some() {
             let parent_id = &node.connection.as_ref().unwrap().target;
@@ -168,5 +211,10 @@ pub fn generate_javascript_code(nodes_list: Vec<crate::routesv1::nodes::NodeData
         }
     }
 
-    println!("{:?}", root);
+    let mut output = String::from("}\nmain();");
+    walk_tree_and_generate_code(&root, &mut output);
+
+    output = "function main() {\n".to_string() + &output;
+
+    println!("{}", output);
 }

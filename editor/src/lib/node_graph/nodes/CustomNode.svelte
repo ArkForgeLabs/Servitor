@@ -160,7 +160,7 @@
   @import "../vars.sass";
 
   .node {
-    background: var(--color-surface-200);
+    background: var(--darkreader-bg--color-surface-200);
     border-radius: 10px;
     cursor: pointer;
     box-sizing: border-box;
@@ -180,7 +180,7 @@
 
     .title {
       color: white;
-      background: var(--color-surface-300);
+      background: var(--darkreader-bg--color-surface-300);
       border-top-left-radius: 10px;
       border-top-right-radius: 10px;
       font-family: sans-serif;
@@ -202,7 +202,7 @@
     }
     .title > span > button:hover {
       cursor: pointer;
-      background: var(--color-surface-400);
+      background: var(--darkreader-bg--color-surface-400);
       transition: 0.25s ease;
     }
 
@@ -228,7 +228,8 @@
 
     :global(.input-socket) > :global(.socket),
     :global(.output-socket) > :global(.socket) {
-      background: var(--color-surface-300);
+      background: var(--darkreader-bg--color-surface-300);
+      border: 3px solid var(--darkreader-bg--color-surface-100);
     }
 
     .input-title,
