@@ -100,25 +100,25 @@ pub async fn run_js(code: String) {
         // contains a Deno.core object with several functions for interacting with it.
         // You can find its definition in core.js.
 
-        runtime
-            .execute_script(
-                "<usage>",
-                format!(
-                    "{}{}",
-                    r#"
+        let final_bundled_code = format!(
+            "{}{}",
+            r#"
 // Print helper function, calling Deno.core.print()
 function print(value) {
-  Deno.core.print(value.toString()+"\n");
+Deno.core.print(value.toString()+"\n");
 }
 
 // helper function to call services
 function call_service(service_name, data){
-    Deno.core.ops.call_service(service_name, JSON.stringify(data));
-}
-"#,
-                    code
-                ),
-            )
+Deno.core.ops.call_service(service_name, JSON.stringify(data));
+}"#,
+            code
+        );
+
+        println!("{final_bundled_code}");
+
+        runtime
+            .execute_script("<usage>", final_bundled_code)
             .unwrap();
     })
     .await
@@ -134,7 +134,7 @@ pub struct NodeTreeItem {
     pub children: Vec<NodeTreeItem>,
 }
 
-pub fn generate_javascript_code(nodes_list: Vec<crate::routesv1::nodes::NodeData>) {
+pub fn generate_javascript_code(nodes_list: Vec<crate::routesv1::nodes::NodeData>) -> String {
     fn walk_tree(found_node: &mut NodeTreeItem, node: &NodeTreeItem, parent_id: &String) {
         if &found_node.id == parent_id {
             found_node.children.push(node.clone())
@@ -157,7 +157,7 @@ pub fn generate_javascript_code(nodes_list: Vec<crate::routesv1::nodes::NodeData
         match node.label.as_str() {
             "Number" => {
                 new_output = format!(
-                    "  let var{} = {};\n",
+                    "let var{} = {};\n",
                     node.id,
                     node.controls.get("value").unwrap().value.as_f64().unwrap()
                 ) + &new_output
@@ -175,7 +175,7 @@ pub fn generate_javascript_code(nodes_list: Vec<crate::routesv1::nodes::NodeData
                 let operation = operations.get(*operation_index as usize).unwrap_or(&&"+");
 
                 new_output = format!(
-                    "  let var{} = var{} {} var{}",
+                    "let var{} = var{} {} var{};\n",
                     node.id, children_ids[0], operation, children_ids[1]
                 ) + &new_output
             }
@@ -211,10 +211,10 @@ pub fn generate_javascript_code(nodes_list: Vec<crate::routesv1::nodes::NodeData
         }
     }
 
-    let mut output = String::from("}\nmain();");
+    let mut output = format!("print(var{});\n", root.id);
     walk_tree_and_generate_code(&root, &mut output);
 
-    output = "function main() {\n".to_string() + &output;
+    output = "\n".to_string() + &output;
 
-    println!("{}", output);
+    "\n".to_string() + &output
 }

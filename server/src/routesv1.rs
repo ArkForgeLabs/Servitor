@@ -70,9 +70,14 @@ pub async fn create(
             // Attempt to deserialize the JSON value into type T. If this fails, return an error.
             let nodes_list: Vec<nodes::NodeData> = serde_json::from_str(&data)?;
 
-            crate::utils::generate_javascript_code(nodes_list);
+            // Attempt to generate the Javascript code from the parsed JSON value
+            let code_generated = crate::utils::generate_javascript_code(nodes_list);
 
-            Ok(serde_json::json!({}))
+            // Execute the generated Javascript code using the Deno runtime
+            crate::utils::run_js(code_generated).await;
+
+            //Ok(serde_json::json!({}))
+            Err(serde_json::Error::custom("Invalid JSON"))
         }
         _ => Err(serde_json::Error::custom("Invalid JSON")),
     };
