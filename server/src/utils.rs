@@ -68,11 +68,17 @@ fn call_service(
 ) -> Result<(), deno_core::anyhow::Error> {
     println!("service: {service_name} | data: {data}");
 
-    let result = reqwest::blocking::get("https://myip.wtf/json");
+    match service_name.as_str() {
+        "http_request" => {
+            println!("{:?}", data);
+            let result = reqwest::blocking::get("https://myip.wtf/json");
 
-    match result {
-        Ok(value) => println!("{:?}", value.text()),
-        Err(e) => println!("{:?}", e),
+            match result {
+                Ok(value) => println!("{:?}", value.text()),
+                Err(e) => println!("{:?}", e),
+            }
+        }
+        _ => {}
     }
 
     // return as a Result<f64, AnyError>
@@ -102,16 +108,16 @@ pub async fn run_js(code: String) {
 
         let final_bundled_code = format!(
             "{}{}",
-            r#"
-// Print helper function, calling Deno.core.print()
+            r#"// ===== SERVITOR CODE ===== //
 function print(value) {
-Deno.core.print(value.toString()+"\n");
+  Deno.core.print(value.toString()+"\n");
 }
 
-// helper function to call services
 function call_service(service_name, data){
-Deno.core.ops.call_service(service_name, JSON.stringify(data));
-}"#,
+  Deno.core.ops.call_service(service_name, JSON.stringify(data));
+}
+
+// ===== GRAPH CODE ===== //"#,
             code
         );
 
@@ -134,7 +140,9 @@ pub struct NodeTreeItem {
     pub children: Vec<NodeTreeItem>,
 }
 
-pub fn generate_javascript_code(nodes_list: Vec<crate::routesv1::nodes::NodeData>) -> String {
+pub fn generate_javascript_code(
+    nodes_list: Vec<crate::routesv1::nodes::NodeData>,
+) -> actix_web::Result<String> {
     fn walk_tree(found_node: &mut NodeTreeItem, node: &NodeTreeItem, parent_id: &String) {
         if &found_node.id == parent_id {
             found_node.children.push(node.clone())
@@ -145,7 +153,10 @@ pub fn generate_javascript_code(nodes_list: Vec<crate::routesv1::nodes::NodeData
         }
     }
 
-    fn walk_tree_and_generate_code(node: &NodeTreeItem, output: &mut String) {
+    fn walk_tree_and_generate_code(
+        node: &NodeTreeItem,
+        output: &mut String,
+    ) -> actix_web::Result<()> {
         let mut new_output = output.clone();
 
         let children_ids = node
@@ -163,7 +174,20 @@ pub fn generate_javascript_code(nodes_list: Vec<crate::routesv1::nodes::NodeData
                 ) + &new_output
             }
 
+            "String" => {
+                new_output = format!(
+                    "let var{} = \"{}\";\n",
+                    node.id,
+                    node.controls.get("value").unwrap().value.as_str().unwrap()
+                ) + &new_output
+            }
+
             "Math" => {
+                if children_ids.len() == 2 {
+                    return Err(actix_web::error::ErrorBadRequest(format!(
+                        "Invalid number of children for Math node: {children_ids:?}"
+                    )));
+                }
                 let operations = ["+", "-", "*", "/"];
                 let operation_index = &node
                     .controls
@@ -179,6 +203,30 @@ pub fn generate_javascript_code(nodes_list: Vec<crate::routesv1::nodes::NodeData
                     node.id, children_ids[0], operation, children_ids[1]
                 ) + &new_output
             }
+
+            "HTTP Request" => {
+                if children_ids.len() != 2 {
+                    return Err(actix_web::error::ErrorBadRequest(format!(
+                        "Invalid number of children for HTTP Request node: {children_ids:?}"
+                    )));
+                }
+                let methods = ["get", "post", "put", "delete"];
+                let content_types = ["application/json", "text/plain"];
+
+                new_output = format!(
+                    "let var{} = call_service(\"http_request\", {{ \"url\": var{}, \"content\": var{}, \"method:\": \"{}\", \"content type\": \"{}\" }});",
+                    node.id,
+                    children_ids[0],
+                    children_ids[1],
+                    methods.get(node.controls.get("method").unwrap().value.as_u64().unwrap() as usize).unwrap_or(&"get"),
+                    content_types.get(node.controls
+                        .get("content type")
+                        .unwrap()
+                        .value
+                        .as_u64()
+                        .unwrap() as usize).unwrap_or(&"text/plain"),
+                )
+            }
             _ => {}
         }
 
@@ -186,8 +234,10 @@ pub fn generate_javascript_code(nodes_list: Vec<crate::routesv1::nodes::NodeData
         output.insert_str(0, &new_output);
 
         node.children.iter().for_each(|child_node| {
-            walk_tree_and_generate_code(child_node, output);
+            walk_tree_and_generate_code(child_node, output).expect("Code Generation Failed");
         });
+
+        Ok(())
     }
 
     let nodes: Vec<NodeTreeItem> = nodes_list
@@ -212,9 +262,9 @@ pub fn generate_javascript_code(nodes_list: Vec<crate::routesv1::nodes::NodeData
     }
 
     let mut output = format!("print(var{});\n", root.id);
-    walk_tree_and_generate_code(&root, &mut output);
+    walk_tree_and_generate_code(&root, &mut output)?;
 
     output = "\n".to_string() + &output;
 
-    "\n".to_string() + &output
+    Ok("\n".to_string() + &output)
 }

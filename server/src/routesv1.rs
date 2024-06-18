@@ -71,7 +71,7 @@ pub async fn create(
             let nodes_list: Vec<nodes::NodeData> = serde_json::from_str(&data)?;
 
             // Attempt to generate the Javascript code from the parsed JSON value
-            let code_generated = crate::utils::generate_javascript_code(nodes_list);
+            let code_generated = crate::utils::generate_javascript_code(nodes_list)?;
 
             // Execute the generated Javascript code using the Deno runtime
             crate::utils::run_js(code_generated).await;
