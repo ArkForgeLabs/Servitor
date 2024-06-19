@@ -1,5 +1,5 @@
 import { new_node } from "./utils";
-import { DropDownControl } from "$lib/node_graph";
+import { DropDownControl, TableControl } from "$lib/node_graph";
 import { ClassicPreset } from "rete";
 
 // ============= Primitive Types =============
@@ -57,6 +57,15 @@ export function http_request_basic(socket: ClassicPreset.Socket) {
 
   node.addControl("method", method);
   node.addControl("content type", content_type);
+
+  return node;
+}
+
+// ============ Table Type ============
+export function table_basic(socket: ClassicPreset.Socket) {
+  let node = new_node("Table", socket, [], ["output"]);
+
+  node.addControl("data", new TableControl("data", { key: "value" }));
 
   return node;
 }

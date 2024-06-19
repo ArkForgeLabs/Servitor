@@ -108,22 +108,24 @@
     </div>
 
     <!-- Controls -->
-    {#each controls as [key, control]}
-      <Ref
-        class="control"
-        data-testid={"control-" + key}
-        init={(element) =>
-          emit({
-            type: "render",
-            data: {
-              type: "control",
-              element,
-              payload: control,
-            },
-          })}
-        unmount={(ref) => emit({ type: "unmount", data: { element: ref } })}
-      />
-    {/each}
+    <div class="node-body-controls">
+      {#each controls as [key, control]}
+        <Ref
+          class="control"
+          data-testid={"control-" + key}
+          init={(element) =>
+            emit({
+              type: "render",
+              data: {
+                type: "control",
+                element,
+                payload: control,
+              },
+            })}
+          unmount={(ref) => emit({ type: "unmount", data: { element: ref } })}
+        />
+      {/each}
+    </div>
 
     <div class="node-body-outputs">
       <!-- Outputs -->
@@ -162,7 +164,7 @@
   .node {
     background: var(--darkreader-bg--color-surface-200);
     border-radius: 10px;
-    cursor: pointer;
+    cursor: default;
     box-sizing: border-box;
     height: auto;
     padding-bottom: 6px;
@@ -214,6 +216,22 @@
       text-align: left;
     }
 
+    .node-body-controls {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .node-body-controls :global(input),
+    .node-body-controls :global(select) {
+      color: white;
+      background: var(--darkreader-bg--color-surface-100);
+      font-size: 110%;
+      border-radius: 5px;
+    }
+
+    .node-body-controls :global(input) {
+      width: 200px;
+    }
     :global(.output-socket) {
       text-align: right;
       margin-right: -20px;

@@ -9,9 +9,16 @@
     number_type,
     math_basic,
     http_request_basic,
+    table_basic,
   } from "$lib/node_graph/basic_types";
 
-  import { Icon123, IconAbc, IconCalculator, IconWeb } from "$lib/utils";
+  import {
+    Icon123,
+    IconAbc,
+    IconCalculator,
+    IconWeb,
+    IconTable,
+  } from "$lib/utils";
 
   let available_nodes = [
     {
@@ -33,6 +40,11 @@
       label: "HTTP Request",
       node_initializer: http_request_basic,
       icon: IconWeb,
+    },
+    {
+      label: "Table",
+      node_initializer: table_basic,
+      icon: IconTable,
     },
   ];
   let nodes: NodeData[] = [];

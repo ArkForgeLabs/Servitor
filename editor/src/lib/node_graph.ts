@@ -7,7 +7,9 @@ import {
 import { SveltePlugin, Presets, type SvelteArea2D } from "rete-svelte-plugin";
 import CustomNode from "./node_graph/nodes/CustomNode.svelte";
 import { type NodeData, type Connection, type Control } from "./types";
+
 import DropDown from "./node_graph/nodes/DropDown.svelte";
+import Table from "./node_graph/nodes/Table.svelte";
 
 type Schemes = GetSchemes<
   ClassicPreset.Node,
@@ -17,6 +19,12 @@ type AreaExtra = SvelteArea2D<Schemes>;
 
 export class DropDownControl extends ClassicPreset.Control {
   constructor(public name: string, public options: string[], public value = 0) {
+    super();
+  }
+}
+
+export class TableControl extends ClassicPreset.Control {
+  constructor(public name: string, public value = {}) {
     super();
   }
 }
@@ -41,6 +49,9 @@ export default class Editor {
           control(data) {
             if (data.payload instanceof DropDownControl) {
               return DropDown as any;
+            }
+            if (data.payload instanceof TableControl) {
+              return Table as any;
             }
             if (data.payload instanceof ClassicPreset.InputControl) {
               return Presets.classic.Control as any;
