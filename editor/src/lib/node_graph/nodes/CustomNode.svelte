@@ -227,11 +227,16 @@
       background: var(--darkreader-bg--color-surface-100);
       font-size: 110%;
       border-radius: 5px;
+      border: 1px solid var(--darkreader-bg--color-surface-400);
+      padding: 5px;
     }
-
     .node-body-controls :global(input) {
       width: 200px;
     }
+    .node-body-controls :global(input):focus {
+      outline: none;
+    }
+
     :global(.output-socket) {
       text-align: right;
       margin-right: -20px;
