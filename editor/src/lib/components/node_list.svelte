@@ -18,7 +18,7 @@
     IconCalculator,
     IconWeb,
     IconTable,
-  } from "$lib/utils";
+  } from "$lib/icons/icons";
 
   let available_nodes = [
     {

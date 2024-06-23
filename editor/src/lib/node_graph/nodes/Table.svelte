@@ -1,5 +1,6 @@
 <script lang="ts">
   import { TableControl } from "$lib/node_graph";
+  import { IconTrash } from "$lib/icons/icons";
   export let data: TableControl = new TableControl("", { key: "value" });
   let keys = {};
   Object.keys(data.value).map((key) => {
@@ -7,17 +8,16 @@
   });
 
   let key_store = "";
-  let value_store = "";
 
   function on_key_new_input(key: string) {
-    let key_not_exist = Object.values(keys).filter(
+    let keys_duplicates_length = Object.values(keys).filter(
       (found_key) => found_key == keys[key]
     ).length;
 
     let new_key = keys[key];
     if (new_key.toString().length > 0 && new_key != key) {
-      if (key_not_exist > 1) {
-        new_key = `${new_key} (${key_not_exist})`;
+      if (keys_duplicates_length > 1) {
+        new_key = `${new_key} (${keys_duplicates_length})`;
       }
 
       data.value[new_key] = data.value[key];
@@ -34,33 +34,46 @@
   </th>
   <tbody>
     {#each Object.keys(keys) as key, n}
-      <tr>
-        <td>
-          <input
-            bind:value={keys[key]}
-            placeholder={key}
-            id={`table-key-${n}`}
-            on:blur={() => {
-              on_key_new_input(key);
-            }}
-            on:keypress={(e) => {
-              if (e.key == "Tab") {
+      {#key key}
+        <tr class="table-row">
+          <td>
+            <input
+              bind:value={keys[key]}
+              placeholder={key}
+              id={`table-key-${n}`}
+              on:blur={() => {
                 on_key_new_input(key);
-              }
-            }}
-          />
-        </td>
-        <td>
-          <input
-            bind:value={data.value[key]}
-            placeholder={data.value[key].length > 0 ? data.value[key] : "value"}
-            id={`table-value-${n}`}
-          />
-        </td>
-        <td>
-          <button>-</button>
-        </td>
-      </tr>
+              }}
+              on:keypress={(e) => {
+                if (e.key == "Tab") {
+                  on_key_new_input(key);
+                }
+              }}
+            />
+          </td>
+          <td>
+            <input
+              bind:value={data.value[key]}
+              placeholder={data.value[key].length > 0
+                ? data.value[key]
+                : "value"}
+              id={`table-value-${n}`}
+            />
+          </td>
+          <td>
+            <!-- svelte-ignore a11y-missing-attribute -->
+            <a
+              class="table-trash-icon"
+              on:pointerdown={() => {
+                delete data.value[key];
+                delete keys[key];
+                data.value = data.value;
+                keys = keys;
+              }}><IconTrash /></a
+            >
+          </td>
+        </tr>
+      {/key}
     {/each}
     <tr>
       <td
@@ -88,19 +101,7 @@
           }}
         /></td
       >
-      <td
-        ><input
-          type="text"
-          placeholder="value"
-          bind:value={value_store}
-          on:blur={() => {
-            if (value_store.length > 0) {
-              data.value[`key${Object.keys(data.value).length}`] = value_store;
-              value_store = "";
-            }
-          }}
-        /></td
-      >
+      <td><input type="text" placeholder="value" disabled /></td>
     </tr>
   </tbody>
 </table>
@@ -118,10 +119,21 @@
     outline: none;
   }
 
-  button {
-    background: var(--darkreader-bg--color-surface-400);
-    border: none;
-    padding: 5px;
-    font-size: 110%;
+  .table-trash-icon :global(svg) {
+    filter: invert();
+    width: 25px;
+    height: 25px;
+  }
+  .table-trash-icon:hover {
+    cursor: pointer;
+  }
+  .table-trash-icon {
+    opacity: 0%;
+    transition: 0.1s ease;
+  }
+
+  .table-row:hover :global(.table-trash-icon) {
+    opacity: 100%;
+    transition: 0.1s ease;
   }
 </style>
