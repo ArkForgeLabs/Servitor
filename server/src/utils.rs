@@ -70,13 +70,32 @@ fn call_service(
 
     match service_name.as_str() {
         "http_request" => {
-            println!("{:?}", data);
-            let result = reqwest::blocking::get("https://myip.wtf/json");
+            let parsed_data = serde_json::from_str::<serde_json::Value>(&data).unwrap();
+            println!("{:?}", parsed_data["url"]);
+            let url = parsed_data["url"].as_str().unwrap();
+            let content = serde_json::to_string(&parsed_data["content"]).unwrap();
+            let method = parsed_data["method"].as_str().unwrap();
+            let content_type = parsed_data["content type"].as_str().unwrap();
 
-            match result {
-                Ok(value) => println!("{:?}", value.text()),
-                Err(e) => println!("{:?}", e),
+            let client = reqwest::blocking::Client::new();
+            let request_builder;
+            match method {
+                "get" => request_builder = client.get(url),
+                "post" => request_builder = client.post(url),
+                "put" => request_builder = client.put(url),
+                "delete" => request_builder = client.delete(url),
+                _ => {
+                    return Err(deno_core::anyhow::Error::msg("invalid method"));
+                }
             }
+
+            let request = request_builder
+                .header("content-type", content_type)
+                .body(content)
+                .build()?;
+            let result = client.execute(request)?;
+
+            println!("result: {result:?}");
         }
         _ => {}
     }
@@ -204,20 +223,37 @@ pub fn generate_javascript_code(
                 ) + &new_output
             }
 
+            "Table" => {
+                new_output = format!(
+                    "let var{} = {};\n",
+                    node.id,
+                    serde_json::to_string(&node.controls.get("data").unwrap().value)?
+                ) + &new_output
+            }
+
             "HTTP Request" => {
                 if children_ids.len() != 2 {
                     return Err(actix_web::error::ErrorBadRequest(format!(
                         "Invalid number of children for HTTP Request node: {children_ids:?}"
                     )));
                 }
+
                 let methods = ["get", "post", "put", "delete"];
                 let content_types = ["application/json", "text/plain"];
 
+                let (url, content) = {
+                    if node.children[0].label == "String" {
+                        (children_ids[0], children_ids[1])
+                    } else {
+                        (children_ids[1], children_ids[0])
+                    }
+                };
+
                 new_output = format!(
-                    "let var{} = call_service(\"http_request\", {{ \"url\": var{}, \"content\": var{}, \"method:\": \"{}\", \"content type\": \"{}\" }});",
+                    "let var{} = call_service(\"http_request\", {{ \"url\": var{}, \"content\": var{}, \"method\": \"{}\", \"content type\": \"{}\" }});",
                     node.id,
-                    children_ids[0],
-                    children_ids[1],
+                    url,
+                    content,
                     methods.get(node.controls.get("method").unwrap().value.as_u64().unwrap() as usize).unwrap_or(&"get"),
                     content_types.get(node.controls
                         .get("content type")
@@ -251,7 +287,13 @@ pub fn generate_javascript_code(
         })
         .collect();
 
-    let mut root = nodes[0].clone();
+    // find index of the node without connection
+    let mut root = nodes
+        .iter()
+        .filter(|n| n.connection.is_none())
+        .next()
+        .unwrap()
+        .clone();
 
     for node in nodes.iter() {
         if node.connection.is_some() {
