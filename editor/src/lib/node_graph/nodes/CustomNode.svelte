@@ -108,22 +108,24 @@
     </div>
 
     <!-- Controls -->
-    {#each controls as [key, control]}
-      <Ref
-        class="control"
-        data-testid={"control-" + key}
-        init={(element) =>
-          emit({
-            type: "render",
-            data: {
-              type: "control",
-              element,
-              payload: control,
-            },
-          })}
-        unmount={(ref) => emit({ type: "unmount", data: { element: ref } })}
-      />
-    {/each}
+    <div class="node-body-controls">
+      {#each controls as [key, control]}
+        <Ref
+          class="control"
+          data-testid={"control-" + key}
+          init={(element) =>
+            emit({
+              type: "render",
+              data: {
+                type: "control",
+                element,
+                payload: control,
+              },
+            })}
+          unmount={(ref) => emit({ type: "unmount", data: { element: ref } })}
+        />
+      {/each}
+    </div>
 
     <div class="node-body-outputs">
       <!-- Outputs -->
@@ -160,9 +162,9 @@
   @import "../vars.sass";
 
   .node {
-    background: var(--color-surface-200);
+    background: var(--darkreader-bg--color-surface-200);
     border-radius: 10px;
-    cursor: pointer;
+    cursor: default;
     box-sizing: border-box;
     height: auto;
     padding-bottom: 6px;
@@ -180,7 +182,7 @@
 
     .title {
       color: white;
-      background: var(--color-surface-300);
+      background: var(--darkreader-bg--color-surface-300);
       border-top-left-radius: 10px;
       border-top-right-radius: 10px;
       font-family: sans-serif;
@@ -202,7 +204,7 @@
     }
     .title > span > button:hover {
       cursor: pointer;
-      background: var(--color-surface-400);
+      background: var(--darkreader-bg--color-surface-400);
       transition: 0.25s ease;
     }
 
@@ -212,6 +214,27 @@
 
     .input {
       text-align: left;
+    }
+
+    .node-body-controls {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .node-body-controls :global(input),
+    .node-body-controls :global(select) {
+      color: white;
+      background: var(--darkreader-bg--color-surface-100);
+      font-size: 110%;
+      border-radius: 5px;
+      border: 1px solid var(--darkreader-bg--color-surface-400);
+      padding: 5px;
+    }
+    .node-body-controls :global(input) {
+      width: 200px;
+    }
+    .node-body-controls :global(input):focus {
+      outline: none;
     }
 
     :global(.output-socket) {
@@ -228,7 +251,8 @@
 
     :global(.input-socket) > :global(.socket),
     :global(.output-socket) > :global(.socket) {
-      background: var(--color-surface-300);
+      background: var(--darkreader-bg--color-surface-300);
+      border: 3px solid var(--darkreader-bg--color-surface-100);
     }
 
     .input-title,

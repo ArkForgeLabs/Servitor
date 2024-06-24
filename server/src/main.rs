@@ -33,9 +33,10 @@ async fn main() -> std::io::Result<()> {
         services.heartbeat();
     });
 
+    let website_path = std::env::var("WEB_FOLDER").unwrap_or("../editor/build".to_string());
+
     let server = HttpServer::new(move || {
         App::new()
-            .service(routesv1::index)
             .service(
                 web::scope("/apiv1")
                     .service(routesv1::get_service)
@@ -46,6 +47,7 @@ async fn main() -> std::io::Result<()> {
                     .service(routesv1::account::create_account)
                     .service(routesv1::account::get_account),
             )
+            .service(actix_files::Files::new("/", website_path.as_str()).index_file("index.html"))
             .wrap(Logger::new("%a %{User-Agent}i"))
             .app_data(app_data.clone())
     });

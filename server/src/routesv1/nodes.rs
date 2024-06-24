@@ -3,7 +3,7 @@ use typeshare::typeshare;
 #[typeshare]
 pub type OptionalString = Option<String>;
 #[typeshare]
-pub type OptionalNumber = Option<i32>;
+pub type OptionalNumber = Option<f32>;
 
 #[typeshare]
 #[derive(Debug, Clone, serde::Deserialize, serde::Serialize, PartialEq, Eq)]
@@ -16,14 +16,15 @@ pub struct Connection {
 }
 
 #[typeshare]
-#[derive(Debug, Clone, serde::Deserialize, serde::Serialize, PartialEq, Eq)]
+#[derive(Debug, Clone, serde::Deserialize, serde::Serialize, PartialEq)]
 pub struct Control {
     pub name: String,
-    pub value: String,
+    #[typeshare(serialized_as = "any")]
+    pub value: serde_json::Value,
 }
 
 #[typeshare]
-#[derive(Debug, Clone, serde::Deserialize, serde::Serialize, PartialEq, Eq)]
+#[derive(Debug, Clone, serde::Deserialize, serde::Serialize, PartialEq)]
 pub struct NodeData {
     pub id: String,
     pub label: String,

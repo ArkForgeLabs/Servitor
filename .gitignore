@@ -2,6 +2,7 @@
 */**/node_modules
 */**/*.db
 .vscode
+db-data
 
 sampleexecution.ts
 samplenodes.json

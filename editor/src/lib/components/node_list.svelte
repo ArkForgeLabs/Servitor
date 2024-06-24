@@ -8,8 +8,17 @@
     string_type,
     number_type,
     math_basic,
+    http_request_basic,
+    table_basic,
   } from "$lib/node_graph/basic_types";
-  import { IconAbc, Icon123, IconCalculator } from "@tabler/icons-svelte";
+
+  import {
+    Icon123,
+    IconAbc,
+    IconCalculator,
+    IconWeb,
+    IconTable,
+  } from "$lib/icons/icons";
 
   let available_nodes = [
     {
@@ -26,6 +35,16 @@
       label: "Math",
       node_initializer: math_basic,
       icon: IconCalculator,
+    },
+    {
+      label: "HTTP Request",
+      node_initializer: http_request_basic,
+      icon: IconWeb,
+    },
+    {
+      label: "Table",
+      node_initializer: table_basic,
+      icon: IconTable,
     },
   ];
   let nodes: NodeData[] = [];
@@ -85,7 +104,7 @@
         await view?.translate(position.x, position.y);
       }}
     >
-      <svelte:component this={node.icon} size={35} />
+      <svelte:component this={node.icon} />
     </NodeListButton>
   {/each}
 </div>
@@ -94,10 +113,14 @@
   #node_list_container_parent {
     display: flex;
     flex-direction: column;
-    background: var(--color-surface-200);
+    background: var(--darkreader-bg--color-surface-200);
     height: 100vh;
     width: 75px;
     align-items: center;
     padding-top: 25px;
+  }
+
+  #node_list_container_parent :global(svg) {
+    filter: invert();
   }
 </style>

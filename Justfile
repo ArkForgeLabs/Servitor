@@ -10,5 +10,10 @@ stop-resources:
 typeshare:
     typeshare ./server --lang=typescript --output-file=./editor/src/lib/types.ts
 
+build-editor:
+    cd editor && bun run build
+
 run-debug-server:
     cd server && cargo build && sudo target/debug/server
+
+debug: build-editor run-debug-server

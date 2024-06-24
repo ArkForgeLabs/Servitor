@@ -16,7 +16,7 @@ export interface Connection {
 
 export interface Control {
   name: string;
-  value: string;
+  value: any;
 }
 
 export interface NodeData {

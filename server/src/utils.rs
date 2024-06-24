@@ -68,11 +68,36 @@ fn call_service(
 ) -> Result<(), deno_core::anyhow::Error> {
     println!("service: {service_name} | data: {data}");
 
-    let result = reqwest::blocking::get("https://myip.wtf/json");
+    match service_name.as_str() {
+        "http_request" => {
+            let parsed_data = serde_json::from_str::<serde_json::Value>(&data).unwrap();
+            println!("{:?}", parsed_data["url"]);
+            let url = parsed_data["url"].as_str().unwrap();
+            let content = serde_json::to_string(&parsed_data["content"]).unwrap();
+            let method = parsed_data["method"].as_str().unwrap();
+            let content_type = parsed_data["content type"].as_str().unwrap();
 
-    match result {
-        Ok(value) => println!("{:?}", value.text()),
-        Err(e) => println!("{:?}", e),
+            let client = reqwest::blocking::Client::new();
+            let request_builder;
+            match method {
+                "get" => request_builder = client.get(url),
+                "post" => request_builder = client.post(url),
+                "put" => request_builder = client.put(url),
+                "delete" => request_builder = client.delete(url),
+                _ => {
+                    return Err(deno_core::anyhow::Error::msg("invalid method"));
+                }
+            }
+
+            let request = request_builder
+                .header("content-type", content_type)
+                .body(content)
+                .build()?;
+            let result = client.execute(request)?;
+
+            println!("result: {result:?}");
+        }
+        _ => {}
     }
 
     // return as a Result<f64, AnyError>
@@ -100,27 +125,188 @@ pub async fn run_js(code: String) {
         // contains a Deno.core object with several functions for interacting with it.
         // You can find its definition in core.js.
 
-        runtime
-            .execute_script(
-                "<usage>",
-                format!(
-                    "{}{}",
-                    r#"
-// Print helper function, calling Deno.core.print()
+        let final_bundled_code = format!(
+            "{}{}",
+            r#"// ===== SERVITOR CODE ===== //
 function print(value) {
   Deno.core.print(value.toString()+"\n");
 }
 
-// helper function to call services
 function call_service(service_name, data){
-    Deno.core.ops.call_service(service_name, JSON.stringify(data));
+  Deno.core.ops.call_service(service_name, JSON.stringify(data));
 }
-"#,
-                    code
-                ),
-            )
+
+// ===== GRAPH CODE ===== //"#,
+            code
+        );
+
+        println!("{final_bundled_code}");
+
+        runtime
+            .execute_script("<usage>", final_bundled_code)
             .unwrap();
     })
     .await
     .unwrap();
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct NodeTreeItem {
+    pub id: String,
+    pub label: String,
+    pub controls: std::collections::HashMap<String, crate::routesv1::nodes::Control>,
+    pub connection: Option<crate::routesv1::nodes::Connection>,
+    pub children: Vec<NodeTreeItem>,
+}
+
+pub fn generate_javascript_code(
+    nodes_list: Vec<crate::routesv1::nodes::NodeData>,
+) -> actix_web::Result<String> {
+    fn walk_tree(found_node: &mut NodeTreeItem, node: &NodeTreeItem, parent_id: &String) {
+        if &found_node.id == parent_id {
+            found_node.children.push(node.clone())
+        } else {
+            for child in found_node.children.iter_mut() {
+                walk_tree(child, node, parent_id);
+            }
+        }
+    }
+
+    fn walk_tree_and_generate_code(
+        node: &NodeTreeItem,
+        output: &mut String,
+    ) -> actix_web::Result<()> {
+        let mut new_output = output.clone();
+
+        let children_ids = node
+            .children
+            .iter()
+            .map(|node| &node.id)
+            .collect::<Vec<&String>>();
+
+        match node.label.as_str() {
+            "Number" => {
+                new_output = format!(
+                    "let var{} = {};\n",
+                    node.id,
+                    node.controls.get("value").unwrap().value.as_f64().unwrap()
+                ) + &new_output
+            }
+
+            "String" => {
+                new_output = format!(
+                    "let var{} = \"{}\";\n",
+                    node.id,
+                    node.controls.get("value").unwrap().value.as_str().unwrap()
+                ) + &new_output
+            }
+
+            "Math" => {
+                if children_ids.len() == 2 {
+                    return Err(actix_web::error::ErrorBadRequest(format!(
+                        "Invalid number of children for Math node: {children_ids:?}"
+                    )));
+                }
+                let operations = ["+", "-", "*", "/"];
+                let operation_index = &node
+                    .controls
+                    .get("operation")
+                    .unwrap()
+                    .value
+                    .as_u64()
+                    .unwrap();
+                let operation = operations.get(*operation_index as usize).unwrap_or(&&"+");
+
+                new_output = format!(
+                    "let var{} = var{} {} var{};\n",
+                    node.id, children_ids[0], operation, children_ids[1]
+                ) + &new_output
+            }
+
+            "Table" => {
+                new_output = format!(
+                    "let var{} = {};\n",
+                    node.id,
+                    serde_json::to_string(&node.controls.get("data").unwrap().value)?
+                ) + &new_output
+            }
+
+            "HTTP Request" => {
+                if children_ids.len() != 2 {
+                    return Err(actix_web::error::ErrorBadRequest(format!(
+                        "Invalid number of children for HTTP Request node: {children_ids:?}"
+                    )));
+                }
+
+                let methods = ["get", "post", "put", "delete"];
+                let content_types = ["application/json", "text/plain"];
+
+                let (url, content) = {
+                    if node.children[0].label == "String" {
+                        (children_ids[0], children_ids[1])
+                    } else {
+                        (children_ids[1], children_ids[0])
+                    }
+                };
+
+                new_output = format!(
+                    "let var{} = call_service(\"http_request\", {{ \"url\": var{}, \"content\": var{}, \"method\": \"{}\", \"content type\": \"{}\" }});",
+                    node.id,
+                    url,
+                    content,
+                    methods.get(node.controls.get("method").unwrap().value.as_u64().unwrap() as usize).unwrap_or(&"get"),
+                    content_types.get(node.controls
+                        .get("content type")
+                        .unwrap()
+                        .value
+                        .as_u64()
+                        .unwrap() as usize).unwrap_or(&"text/plain"),
+                )
+            }
+            _ => {}
+        }
+
+        output.clear();
+        output.insert_str(0, &new_output);
+
+        node.children.iter().for_each(|child_node| {
+            walk_tree_and_generate_code(child_node, output).expect("Code Generation Failed");
+        });
+
+        Ok(())
+    }
+
+    let nodes: Vec<NodeTreeItem> = nodes_list
+        .iter()
+        .map(|node| NodeTreeItem {
+            id: node.id.clone(),
+            label: node.label.clone(),
+            controls: node.controls.clone(),
+            connection: node.connection.clone(),
+            children: Vec::new(),
+        })
+        .collect();
+
+    // find index of the node without connection
+    let mut root = nodes
+        .iter()
+        .filter(|n| n.connection.is_none())
+        .next()
+        .unwrap()
+        .clone();
+
+    for node in nodes.iter() {
+        if node.connection.is_some() {
+            let parent_id = &node.connection.as_ref().unwrap().target;
+
+            walk_tree(&mut root, node, parent_id);
+        }
+    }
+
+    let mut output = format!("print(var{});\n", root.id);
+    walk_tree_and_generate_code(&root, &mut output)?;
+
+    output = "\n".to_string() + &output;
+
+    Ok("\n".to_string() + &output)
 }

@@ -3,16 +3,12 @@ use actix_web::{
     web::{self, Json},
     HttpResponse, Responder,
 };
+
 use serde::de::Error;
 use utils::Service;
 
 pub mod account;
 pub mod nodes;
-
-#[get("/")]
-pub async fn index() -> impl Responder {
-    "Hello world!"
-}
 
 #[get("/get_service/{service_id}")]
 pub async fn get_service(
@@ -56,7 +52,7 @@ pub async fn create(
             let mut json_form: serde_json::Value = serde_json::from_str(&data)?;
 
             // Attempt to deserialize the JSON value into type T. If this fails, return an error.
-            serde_json::from_value::<crate::routesv1::account::Account>(json_form.clone())?;
+            serde_json::from_value::<account::Account>(json_form.clone())?;
 
             json_form.as_object_mut().unwrap().remove("id");
 
@@ -66,6 +62,22 @@ pub async fn create(
             } else {
                 Err(serde_json::Error::custom("Invalid JSON"))
             }
+        }
+        "graph" => {
+            // Parse the input JSON string into a serde_json::Value object
+            let _json_form: serde_json::Value = serde_json::from_str(&data)?;
+
+            // Attempt to deserialize the JSON value into type T. If this fails, return an error.
+            let nodes_list: Vec<nodes::NodeData> = serde_json::from_str(&data)?;
+
+            // Attempt to generate the Javascript code from the parsed JSON value
+            let code_generated = crate::utils::generate_javascript_code(nodes_list)?;
+
+            // Execute the generated Javascript code using the Deno runtime
+            crate::utils::run_js(code_generated).await;
+
+            //Ok(serde_json::json!({}))
+            Err(serde_json::Error::custom("Invalid JSON"))
         }
         _ => Err(serde_json::Error::custom("Invalid JSON")),
     };
