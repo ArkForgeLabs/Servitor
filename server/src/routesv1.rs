@@ -46,7 +46,7 @@ pub async fn create(
 
     // Match the service name and call the typecheck function with the appropriate struct type as a generic argument.
     // If the service name is invalid, return an error.
-    let result: Result<serde_json::Value, serde_json::Error> = match service.as_str() {
+    let result: actix_web::Result<serde_json::Value> = match service.as_str() {
         "users" => {
             // Parse the input JSON string into a serde_json::Value object
             let mut json_form: serde_json::Value = serde_json::from_str(&data)?;
@@ -60,26 +60,17 @@ pub async fn create(
             if json_form.as_object().is_some() {
                 Ok(json_form)
             } else {
-                Err(serde_json::Error::custom("Invalid JSON"))
+                Err(actix_web::error::ErrorBadRequest(
+                    serde_json::Error::custom("Invalid JSON"),
+                ))
             }
         }
-        "graph" => {
-            // Parse the input JSON string into a serde_json::Value object
-            let _json_form: serde_json::Value = serde_json::from_str(&data)?;
 
-            // Attempt to deserialize the JSON value into type T. If this fails, return an error.
-            let nodes_list: Vec<nodes::NodeData> = serde_json::from_str(&data)?;
+        "graph" => nodes::nodes_graph(data, app_data.clone()).await,
 
-            // Attempt to generate the Javascript code from the parsed JSON value
-            let code_generated = crate::utils::generate_javascript_code(nodes_list)?;
-
-            // Execute the generated Javascript code using the Deno runtime
-            crate::utils::run_js(code_generated).await;
-
-            //Ok(serde_json::json!({}))
-            Err(serde_json::Error::custom("Invalid JSON"))
-        }
-        _ => Err(serde_json::Error::custom("Invalid JSON")),
+        _ => Err(actix_web::error::ErrorBadRequest(
+            serde_json::Error::custom("Invalid JSON"),
+        )),
     };
 
     // If the typecheck function returned an error, return a 404 Not Found response.
@@ -96,7 +87,7 @@ pub async fn create(
     let values = result.values().collect::<Vec<_>>();
 
     let query = format!(
-        "INSERT INTO {} ({}) VALUES ({})",
+        "INSERT INTO {} ({}, creation_date) VALUES ({}, CURRENT_TIMESTAMP)",
         service,
         keys.iter()
             .map(|key| key.as_str())
@@ -133,6 +124,8 @@ pub async fn create(
             ));
         }
     }
+
+    println!("{:?}", &query);
 
     // If the query execution was successful, return a 200 OK response. Otherwise, return an error.
     match prepared_query.execute(&app_data.database.pool).await {
