@@ -1,5 +1,14 @@
 # License
 
+Portions of this software are licensed as follows:
+
+- All third party components incorporated into the Servitor are licensed under the original license
+  provided by the owner of the applicable component.
+- Content outside of the above mentioned files or restrictions is available under the "Sustainable Use
+  License" as defined below.
+
+## Sustainable Use License
+
 Version 1.0
 
 ### Acceptance
@@ -71,3 +80,5 @@ management and policies by vote, contract, or otherwise. Control can be direct o
 “Use” means anything you do with the software requiring your license.
 
 “Trademark” means trademarks, service marks, and similar rights.
+
+> Note: This license filed is a modification of n8n's license: https://github.com/n8n-io/n8n/blob/master/LICENSE.md
