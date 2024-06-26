@@ -1,9 +1,6 @@
 use sqlx::Executor;
 
-const DATABASE_INIT: &str = r#"
-CREATE TABLE IF NOT EXISTS users (id BIGSERIAL PRIMARY KEY, username TEXT, email TEXT, password TEXT);
-"#;
-//CREATE TABLE IF NOT EXISTS graphs (id INTEGER PRIMARY KEY, graph_name TEXT, user INTEGER NOT NULL, nodes: TEXT);
+const INIT_SCHEMA: &str = include_str!("../schema.sql");
 
 #[derive(Debug)]
 pub struct Database {
@@ -14,10 +11,10 @@ impl Database {
         // Connect to the database.
         let pool = sqlx::postgres::PgPoolOptions::new()
             .max_connections(5)
-            .connect("postgres://postgres:example@localhost/testdb")
+            .connect("postgres://postgres:example@localhost/database")
             .await?;
 
-        pool.execute(DATABASE_INIT).await?;
+        pool.execute(INIT_SCHEMA).await?;
 
         Ok(Self { pool })
     }

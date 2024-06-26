@@ -66,12 +66,11 @@ fn call_service(
     #[string] service_name: String,
     #[string] data: String,
 ) -> Result<(), deno_core::anyhow::Error> {
-    println!("service: {service_name} | data: {data}");
+    println!("\n\nservice: {service_name} | data: {data}\n\n");
 
     match service_name.as_str() {
         "http_request" => {
             let parsed_data = serde_json::from_str::<serde_json::Value>(&data).unwrap();
-            println!("{:?}", parsed_data["url"]);
             let url = parsed_data["url"].as_str().unwrap();
             let content = serde_json::to_string(&parsed_data["content"]).unwrap();
             let method = parsed_data["method"].as_str().unwrap();
@@ -202,7 +201,7 @@ pub fn generate_javascript_code(
             }
 
             "Math" => {
-                if children_ids.len() == 2 {
+                if children_ids.len() != 2 {
                     return Err(actix_web::error::ErrorBadRequest(format!(
                         "Invalid number of children for Math node: {children_ids:?}"
                     )));
