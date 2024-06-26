@@ -3,8 +3,8 @@ use actix_web::{
     web::{self, Json},
     HttpResponse, Responder,
 };
-
 use serde::de::Error;
+use sqlx::Row;
 use utils::Service;
 
 pub mod account;
@@ -125,8 +125,6 @@ pub async fn create(
         }
     }
 
-    println!("{:?}", &query);
-
     // If the query execution was successful, return a 200 OK response. Otherwise, return an error.
     match prepared_query.execute(&app_data.database.pool).await {
         Ok(_) => Ok(HttpResponse::Ok().finish()),
@@ -152,7 +150,34 @@ pub async fn get_all(
                     .await
                     .expect("Failed to execute query");
 
-            println!("rows: {:?}", rows);
+            println!("{rows:?}")
+        }
+        "graph" => {
+            let rows = sqlx::query("SELECT * FROM graph")
+                .fetch_all(&app_data.database.pool)
+                .await
+                .expect("Failed to execute query")
+                .iter()
+                .map(|row| {
+                    let content: Vec<serde_json::Value> = row.get(1);
+
+                    nodes::DBGraph {
+                        id: row.get(0),
+                        content: content
+                            .iter()
+                            .map(|value| {
+                                serde_json::from_value::<nodes::NodeData>(value.clone())
+                                    .expect("Failed to parse JSON")
+                            })
+                            .collect::<Vec<nodes::NodeData>>(),
+
+                        generated_javascript: row.get(2),
+                        creation_date: row.get(3),
+                    }
+                })
+                .collect::<Vec<nodes::DBGraph>>();
+
+            println!("{rows:?}");
         }
         _ => return Err(actix_web::error::ErrorNotFound("Service not found")),
     }

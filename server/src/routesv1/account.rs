@@ -12,6 +12,7 @@ pub struct Account {
     pub username: String,
     pub email: String,
     pub password: String,
+    pub creation_date: chrono::DateTime<chrono::Utc>,
 }
 
 /// AccountUpdate for updating account details

@@ -8,7 +8,7 @@ pub type OptionalString = Option<String>;
 pub type OptionalNumber = Option<f32>;
 
 #[typeshare]
-#[derive(Debug, Clone, serde::Deserialize, serde::Serialize, PartialEq, Eq)]
+#[derive(Debug, Clone, serde::Deserialize, serde::Serialize, PartialEq, Eq, sqlx::Decode)]
 pub struct Connection {
     pub id: String,
     pub source: String,
@@ -18,7 +18,7 @@ pub struct Connection {
 }
 
 #[typeshare]
-#[derive(Debug, Clone, serde::Deserialize, serde::Serialize, PartialEq)]
+#[derive(Debug, Clone, serde::Deserialize, serde::Serialize, PartialEq, sqlx::Decode)]
 pub struct Control {
     pub name: String,
     #[typeshare(serialized_as = "any")]
@@ -35,6 +35,14 @@ pub struct NodeData {
     pub controls: std::collections::HashMap<String, Control>,
     pub position: [OptionalNumber; 2],
     pub connection: Option<Connection>,
+}
+
+#[derive(Debug, Clone, PartialEq, sqlx::FromRow)]
+pub struct DBGraph {
+    pub id: i32,
+    pub content: Vec<NodeData>,
+    pub generated_javascript: String,
+    pub creation_date: chrono::DateTime<chrono::Utc>,
 }
 
 pub async fn nodes_graph(
