@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { onMount } from "svelte";
+
   export let left = 0;
   export let top = 0;
   export let onDrop = async (x: number, y: number) => {};
@@ -16,16 +18,26 @@
     }
   }
 
-  async function onMouseUp() {
+  async function onMouseUp(e) {
     moving = false;
-    await onDrop(left, top);
+    await onDrop(e.clientX, e.clientY);
     left = 0;
     top = 0;
   }
+
+  let element: HTMLElement;
+
+  onMount(() => {
+    element.addEventListener("dragover", (e) => e.preventDefault());
+    element.addEventListener("drop", async (event) => {
+      console.log(event);
+    });
+  });
 </script>
 
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <section
+  bind:this={element}
   on:mousedown={onMouseDown}
   on:mouseup={onMouseUp}
   style="left: {left}px; top: {top}px;"
