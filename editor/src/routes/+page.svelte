@@ -1,5 +1,11 @@
 <script lang="ts">
+  import { IconRightArrow } from "$lib/icons/icons";
+
   let email = "";
+  let username = "";
+  let password = "";
+
+  let is_signup = false;
 
   function submit() {}
 </script>
@@ -8,27 +14,87 @@
   <div id="landing_content_container">
     <img src="/owl.svg" alt="logo" />
 
-    <div id="content">
-      <span id="content-heading">Welcome back!</span>
-      <span>Want to see what we're up to?</span>
-      <div id="input">
-        <input
-          id="email"
-          type="text"
-          placeholder="email"
-          bind:value={email}
-          on:keypress={(e) => {
-            if (e.key === "Enter") {
-              submit();
-            }
-          }}
-        />
-        <!-- svelte-ignore a11y-click-events-have-key-events -->
-        <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-        <img src="/icons/arrow-right.svg" alt="arrow-right" on:click={submit} />
+    <div id="content-container">
+      <div id="content">
+        <span id="content-heading"
+          >{is_signup ? "Get Started!" : "Welcome back!"}</span
+        >
+        <br />
+        <div id="input">
+          <label for="email">Email</label>
+          <input
+            id="email"
+            type="text"
+            bind:value={email}
+            on:keypress={(e) => {
+              if (e.key === "Enter") {
+                submit();
+              }
+            }}
+          />
+          {#if is_signup}
+            <div><label for="username">Username</label></div>
+            <input
+              id="username"
+              type="username"
+              bind:value={username}
+              on:keypress={(e) => {
+                if (e.key === "Enter") {
+                  submit();
+                }
+              }}
+            />
+          {/if}
+          <div><label for="password">Password</label></div>
+          <input
+            id="password"
+            type="password"
+            bind:value={password}
+            on:keypress={(e) => {
+              if (e.key === "Enter") {
+                submit();
+              }
+            }}
+          />
+          <!-- svelte-ignore a11y-click-events-have-key-events -->
+          <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+          <!--<img src="/icons/arrow-right.svg" alt="arrow-right" />-->
+          <a
+            id="submit_button"
+            style="text-decoration: none;"
+            href="/"
+            on:click={submit}
+          >
+            {is_signup ? "Sign Up" : "Log In"}
+            <svelte:component this={IconRightArrow} />
+          </a>
+
+          {#if is_signup}
+            <a href="/" style="font-size: medium;"
+              >By signing up, you accept our license</a
+            >
+          {:else}
+            <a href="/" style="font-size: medium;">Forgot password?</a>
+          {/if}
+
+          <br />
+
+          <div id="signup">
+            <hr />
+            <!-- svelte-ignore a11y-no-static-element-interactions -->
+            <!-- svelte-ignore a11y-click-events-have-key-events -->
+            <!-- svelte-ignore a11y-missing-attribute -->
+            <a
+              on:click={() => {
+                is_signup = is_signup ? false : true;
+              }}>{is_signup ? "Log In" : "Sign Up"}</a
+            >
+            <hr />
+          </div>
+        </div>
       </div>
+      <div />
     </div>
-    <div></div>
   </div>
   <img id="side" src="/images/background.webp" alt="side" />
 </section>
@@ -60,6 +126,9 @@
     display: flex;
     flex-direction: column;
     font-family: sans-serif;
+    background: var(--darkreader-bg--color-surface-200);
+    margin: auto auto;
+    width: 80%;
   }
 
   #side {
@@ -71,10 +140,10 @@
   #content-heading {
     margin: 0;
     font-size: 75px;
-    height: 50px;
     font-family: serif;
     font-style: italic;
     font-weight: bolder;
+    line-height: normal;
   }
 
   span {
@@ -87,27 +156,67 @@
     outline: none;
     width: 100%;
     font-size: large;
+    background: var(--darkreader-bg--color-surface-300);
+    border-radius: 5px;
+    padding: 5px;
   }
 
   #input {
-    display: flex;
-    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+    display: grid;
     transition: 0.25s ease;
-    width: 250px;
-    background: white;
+    width: 300px;
+    gap: 10px;
+    font-size: larger;
   }
   #input:hover {
-    box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5);
     transition: 0.25s ease;
   }
 
-  #input > img {
-    height: 25px;
+  #input :global(a) {
+    text-decoration: underline;
+    color: white;
+    width: fit-content;
   }
-
-  #input > img:hover {
+  #input :global(a):hover {
     cursor: pointer;
+  }
+
+  #submit_button :global(svg) {
+    height: 25px;
+    width: 25px;
     transition: 0.25s ease;
+    filter: invert();
+    font-size: larger;
+  }
+
+  #submit_button {
+    display: grid;
+    grid-auto-flow: column;
+    justify-items: right;
+    padding: 5px;
+    border-radius: 5px;
+    background: var(--darkreader-bg--color-surface-300);
+    color: white;
+    font-weight: bold;
+    filter: invert();
+    width: 100%;
+  }
+
+  #submit_button:hover :global(svg) {
+    cursor: pointer;
+    transform: translateX(5px);
+    transition: 0.25s ease;
+  }
+
+  #signup {
+    display: flex;
+    gap: 10px;
+    font-size: large;
+  }
+
+  #signup > hr {
+    flex-grow: 1;
+    height: 0;
   }
 
   @media only screen and (max-width: 768px) {
@@ -120,11 +229,32 @@
       object-position: right;
     }
 
-    #landing_content_container {
-      color: black;
+    #content {
+      width: 300px;
+      margin: auto auto;
+    }
+
+    #content-heading {
+      font-size: 47.5px;
+    }
+
+    #content-container {
+      background: var(--darkreader-bg--color-surface-200);
       width: 100vw;
+      padding-top: 50px;
+    }
+
+    #landing_content_container {
+      width: 100vw;
+      padding: 0;
       background: none;
       z-index: 1;
+    }
+
+    #landing_content_container > img {
+      margin-top: 10px;
+      margin-left: 10px;
+      filter: invert();
     }
   }
 </style>
