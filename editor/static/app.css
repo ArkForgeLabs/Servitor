@@ -2,8 +2,22 @@
   box-sizing: border-box;
 }
 
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("/fonts/jetbrains_mono/JetBrainsMono-VariableFont_wght.ttf")
+    format("truetype-variations");
+  font-weight: 1 999;
+}
+
+@font-face {
+  font-family: "JetBrains Mono Italic";
+  src: url("/fonts/jetbrains_mono/JetBrainsMono-Italic-VariableFont_wght.ttf")
+    format("truetype-variations");
+  font-weight: 1 999;
+}
+
 :root {
-  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+  font-family: "JetBrains Mono", Inter, Avenir, Helvetica, Arial, sans-serif;
   font-size: 16px;
   line-height: 24px;
   font-weight: 400;
