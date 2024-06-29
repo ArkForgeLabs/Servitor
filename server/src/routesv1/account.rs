@@ -6,7 +6,15 @@ use actix_web::{
 use serde_json::to_value;
 
 /// Account related structs and handlers
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize, PartialEq, sqlx::FromRow)]
+#[derive(
+    Debug,
+    Clone,
+    serde::Serialize,
+    serde::Deserialize,
+    PartialEq,
+    sqlx::FromRow,
+    actix_jwt_auth_middleware::FromRequest,
+)]
 pub struct Account {
     pub id: i64,
     pub username: String,
@@ -15,10 +23,15 @@ pub struct Account {
     pub creation_date: chrono::DateTime<chrono::Utc>,
 }
 
-/// AccountUpdate for updating account details
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize, PartialEq)]
 pub struct AccountUpdate {
     pub username: String,
+    pub email: String,
+    pub password: String,
+}
+
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize, PartialEq)]
+pub struct AccountLogin {
     pub email: String,
     pub password: String,
 }
@@ -97,6 +110,7 @@ pub async fn delete_account(
 
 #[get("/get_account")]
 pub async fn get_account(
+    _account: Account,
     app_data: web::Data<crate::AppState>,
     request: HttpRequest,
 ) -> actix_web::Result<web::Json<VerifiedAccount>> {
@@ -104,4 +118,21 @@ pub async fn get_account(
         &app_data.database,
         request,
     )?))
+}
+
+#[get("/login")]
+async fn login(
+    token_signer: web::Data<
+        actix_jwt_auth_middleware::TokenSigner<AccountLogin, jwt_compact::alg::Ed25519>,
+    >,
+) -> actix_jwt_auth_middleware::AuthResult<HttpResponse> {
+    let user = AccountLogin {
+        email: "asda".to_string(),
+        password: "asdasd".to_string(),
+    };
+
+    Ok(HttpResponse::Ok()
+        .cookie(token_signer.create_access_cookie(&user)?)
+        .cookie(token_signer.create_refresh_cookie(&user)?)
+        .body("You are now logged in"))
 }

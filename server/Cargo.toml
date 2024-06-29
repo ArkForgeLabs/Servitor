@@ -27,6 +27,11 @@ sqlx = { version = "0.7", features = [
 ] }
 
 utils = { path = "../utils" }
+actix-jwt-auth-middleware = "0.5.0"
+dotenv_rs = "0.16.1"
+jwt-compact = { version = "0.8.0", features = ["ed25519-compact"] }
+ed25519-compact = "2.1.1"
+md5 = "0.7.0"
 
 [profile.release]
 opt-level = 3
@@ -34,6 +39,3 @@ lto = true
 codegen-units = 1
 overflow-checks = false
 debug = false
-
-[env]
-WEB_FOLDER = { value = "../editor/build", relative = true }
