@@ -58,7 +58,7 @@ async fn main() -> std::io::Result<()> {
 
     let server = HttpServer::new(move || {
         let authority = actix_jwt_auth_middleware::Authority::<
-            routesv1::account::Account,
+            routesv1::account::VerifiedAccount,
             jwt_compact::alg::Ed25519,
             _,
             _,
@@ -77,21 +77,21 @@ async fn main() -> std::io::Result<()> {
 
         App::new()
             .service(
+                web::scope("/apiv1_auth")
+                    .service(routesv1::account::login)
+                    .service(routesv1::get_all)
+                    .service(routesv1::account::create_account),
+            )
+            .use_jwt(
+                authority,
                 web::scope("/apiv1")
                     .service(routesv1::get_service)
                     .service(routesv1::create_service)
-                    .service(routesv1::create)
-                    .service(routesv1::get_all)
-                    // account
-                    .service(routesv1::account::create_account),
+                    .service(routesv1::create), // account
             )
             .service(actix_files::Files::new("/", website_path.as_str()).index_file("index.html"))
-            .wrap(Logger::new("%a %{User-Agent}i"))
+            .wrap(Logger::default())
             .app_data(app_data.clone())
-            .use_jwt(
-                authority,
-                web::scope("/apiv1").service(routesv1::account::get_account),
-            )
     });
     let server = server.bind(("0.0.0.0", 8080))?;
 

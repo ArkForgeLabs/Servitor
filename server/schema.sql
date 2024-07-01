@@ -6,11 +6,12 @@
 -- TODO?Possible alternative is just importing all the nodes and put them in a box instead for safety
 
 CREATE TABLE IF NOT EXISTS users 
-    (id SERIAL PRIMARY KEY, 
-    username TEXT, 
-    email TEXT, 
-    password TEXT, 
-    creation_date TIMESTAMP);
+    (id SERIAL PRIMARY KEY,
+    username TEXT,
+    email TEXT,
+    password TEXT,
+    referral TEXT,
+    creation_date TIMESTAMPTZ);
 
 -- INSERT INTO users (username, email, password) VALUES ('admin', 'elhamaryanpur', 'password');
 

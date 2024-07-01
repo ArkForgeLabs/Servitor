@@ -16,10 +16,11 @@ use serde_json::to_value;
     actix_jwt_auth_middleware::FromRequest,
 )]
 pub struct Account {
-    pub id: i64,
+    pub id: i32,
     pub username: String,
     pub email: String,
     pub password: String,
+    pub referral: Option<String>,
     pub creation_date: chrono::DateTime<chrono::Utc>,
 }
 
@@ -39,7 +40,7 @@ pub struct AccountLogin {
 /// VerifiedAccount for returning verified user details after login or signup
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize, PartialEq)]
 pub struct VerifiedAccount {
-    pub id: u32,
+    pub id: i32,
     pub username: String,
     pub email: String,
 }
@@ -47,18 +48,18 @@ pub struct VerifiedAccount {
 #[post("/create_account")]
 pub async fn create_account(
     app_data: web::Data<crate::AppState>,
-    account: web::Json<Account>,
+    account: web::Json<AccountUpdate>,
 ) -> actix_web::Result<HttpResponse> {
-    // TODO: Add password hashing and salt generation for security purposes.
     let account = account.into_inner();
-    let query = crate::utils::CREATE_USER;
-    let params = vec![
-        to_value(account.username.clone())?,
-        to_value(account.email.clone())?,
-        to_value(crate::utils::hash(account.password.clone().as_str()))?,
-    ];
+    let password = crate::utils::hash(&account.password.as_str());
 
-    match app_data.database.query(query, params) {
+    match sqlx::query("INSERT INTO users (username, email, password, creation_date) VALUES ($1, $2, $3, CURRENT_TIMESTAMP)")
+        .bind(account.username.clone())
+        .bind(account.email.clone())
+        .bind(password)
+        .execute(&app_data.database.pool)
+        .await
+    {
         Ok(_) => Ok(HttpResponse::Ok().finish()),
         Err(_) => Err(actix_web::error::ErrorInternalServerError(
             "Failed to create account",
@@ -122,13 +123,34 @@ pub async fn get_account(
 
 #[get("/login")]
 async fn login(
+    query: actix_web::web::Query<AccountLogin>,
+    app_data: web::Data<crate::AppState>,
     token_signer: web::Data<
-        actix_jwt_auth_middleware::TokenSigner<AccountLogin, jwt_compact::alg::Ed25519>,
+        actix_jwt_auth_middleware::TokenSigner<VerifiedAccount, jwt_compact::alg::Ed25519>,
     >,
 ) -> actix_jwt_auth_middleware::AuthResult<HttpResponse> {
-    let user = AccountLogin {
-        email: "asda".to_string(),
-        password: "asdasd".to_string(),
+    let password = crate::utils::hash(query.password.as_str());
+
+    let user =
+        sqlx::query_as::<_, Account>("SELECT * FROM users WHERE email = $1 AND password = $2;")
+            .bind(query.email.clone())
+            .bind(password)
+            .fetch_one(&app_data.database.pool)
+            .await;
+
+    if user.is_err() {
+        println!("Error fetching user account: {:?}", user.as_ref().err());
+
+        return Err(actix_jwt_auth_middleware::AuthError::TokenValidation(
+            jwt_compact::ValidationError::InvalidSignature,
+        ));
+    }
+
+    let user = user.unwrap();
+    let user = VerifiedAccount {
+        id: user.id,
+        username: user.username,
+        email: user.email,
     };
 
     Ok(HttpResponse::Ok()

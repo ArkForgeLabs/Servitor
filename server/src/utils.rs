@@ -2,13 +2,9 @@ use actix_web::HttpRequest;
 use sha2::Digest;
 
 // SQL Queries
-// user
-pub const CREATE_USER: &str = "INSERT INTO users (username, email, password) VALUES (?, ?, ?)";
 pub const DELETE_USER: &str = "DELETE FROM users WHERE id = ?";
 pub const UPDATE_USER: &str = "UPDATE users SET username = ?, email = ? WHERE id = ?";
 pub const VERIFY_USER: &str = "SELECT id, username, email FROM users WHERE password = ?";
-// nodes
-//pub const CREATE_NODE: &str = "INSERT INTO nodes (id, label, inputs, outputs, controls, position, connection) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
 pub fn verify(
     database: &crate::database::Database,

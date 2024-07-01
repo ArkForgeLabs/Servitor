@@ -144,13 +144,22 @@ pub async fn get_all(
 ) -> actix_web::Result<HttpResponse> {
     match service.as_str() {
         "users" => {
-            let rows =
-                sqlx::query_as::<_, crate::routesv1::account::Account>("SELECT * FROM users")
-                    .fetch_all(&app_data.database.pool)
-                    .await
-                    .expect("Failed to execute query");
-
-            println!("{rows:?}")
+            let _rows = sqlx::query("SELECT * FROM users")
+                .fetch_all(&app_data.database.pool)
+                .await
+                .expect("Failed to execute query")
+                .iter()
+                .map(|row| {
+                    println!(
+                        "\n{:?}\n{:?}\n{:?}\n{:?}\n{:?}",
+                        row.get::<i32, _>(0),
+                        row.get::<String, _>(1),
+                        row.get::<String, _>(2),
+                        row.get::<String, _>(3),
+                        row.get::<chrono::DateTime<chrono::Utc>, _>(4),
+                    );
+                })
+                .collect::<()>();
         }
         "graph" => {
             let rows = sqlx::query("SELECT * FROM graph")
