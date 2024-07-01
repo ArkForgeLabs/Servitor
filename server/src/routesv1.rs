@@ -151,12 +151,13 @@ pub async fn get_all(
                 .iter()
                 .map(|row| {
                     println!(
-                        "\n{:?}\n{:?}\n{:?}\n{:?}\n{:?}",
+                        "\n{:?}\n{:?}\n{:?}\n{:?}\n{:?}\n{:?}",
                         row.get::<i32, _>(0),
                         row.get::<String, _>(1),
                         row.get::<String, _>(2),
                         row.get::<String, _>(3),
-                        row.get::<chrono::DateTime<chrono::Utc>, _>(4),
+                        row.get::<Option<String>, _>(4),
+                        row.get::<chrono::DateTime<chrono::Utc>, _>(5),
                     );
                 })
                 .collect::<()>();

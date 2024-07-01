@@ -5,9 +5,95 @@
   let username = "";
   let password = "";
 
-  let is_signup = false;
+  let error_message = "";
 
-  function submit() {}
+  let is_signup = false;
+  let is_error = false;
+
+  const validateEmail = (email: string) => {
+    return String(email)
+      .toLowerCase()
+      .match(
+        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+      );
+  };
+
+  const validatePassword = (password: string) => {
+    return /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{6,16}$/.test(
+      password
+    );
+  };
+
+  function validate_input() {
+    if (
+      (!is_signup && (!email || !password)) ||
+      (is_signup && (!email || !password || !username))
+    ) {
+      error_message = "Please fill all the fields";
+      is_error = true;
+      return false;
+    }
+
+    if (!validateEmail(email)) {
+      error_message = "Invalid E-Mail";
+      is_error = true;
+      return false;
+    }
+    if (!validatePassword(password)) {
+      error_message =
+        "Invalid password, make sure it has upper and lower case letters, a number and a special character!";
+      is_error = true;
+      return false;
+    }
+
+    return true;
+  }
+
+  function submit() {
+    if (validate_input()) {
+      if (is_signup) {
+        fetch("/apiv1_auth/create_account", {
+          method: "POST",
+          headers: [["Content-Type", "application/json"]],
+          body: JSON.stringify({
+            email,
+            username,
+            password,
+          }),
+        })
+          .then((res) => {
+            if (res.status == 200) {
+              window.open("/dashboard", "_self");
+            } else {
+              error_message =
+                "Couldn't sign up at this moment, please try again later!";
+              is_error = true;
+            }
+          })
+          .catch(() => {
+            error_message =
+              "Couldn't sign up at this moment, please try again later!";
+            is_error = true;
+          });
+      } else {
+        fetch(
+          `/apiv1_auth/login?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`
+        )
+          .then((res) => {
+            if (res.status == 200) {
+              window.open("/dashboard", "_self");
+            } else {
+              error_message = "invalid email or password";
+              is_error = true;
+            }
+          })
+          .catch(() => {
+            error_message = "invalid email or password";
+            is_error = true;
+          });
+      }
+    }
+  }
 </script>
 
 <section aria-label="landing">
@@ -56,25 +142,29 @@
               }
             }}
           />
+          <!-- svelte-ignore a11y-no-static-element-interactions -->
           <!-- svelte-ignore a11y-click-events-have-key-events -->
-          <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-          <!--<img src="/icons/arrow-right.svg" alt="arrow-right" />-->
+          <!-- svelte-ignore a11y-missing-attribute -->
           <a
             id="submit_button"
             style="text-decoration: none;"
-            href="/"
             on:click={submit}
           >
             {is_signup ? "Sign Up" : "Log In"}
             <svelte:component this={IconRightArrow} />
           </a>
 
-          {#if is_signup}
-            <a href="/" style="font-size: medium;"
-              >By signing up, you accept our license</a
-            >
-          {:else}
-            <a href="/" style="font-size: medium;">Forgot password?</a>
+          <!-- svelte-ignore a11y-no-static-element-interactions -->
+          <!-- svelte-ignore a11y-click-events-have-key-events -->
+          <!-- svelte-ignore a11y-missing-attribute -->
+          <a style="font-size: medium;">
+            {is_signup
+              ? "By signing up, you accept our license"
+              : "Forgot password?"}
+          </a>
+
+          {#if is_error}
+            <span style="color: #ff2d2d;">{error_message}</span>
           {/if}
 
           <br />

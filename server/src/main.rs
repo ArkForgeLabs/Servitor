@@ -89,6 +89,13 @@ async fn main() -> std::io::Result<()> {
                     .service(routesv1::create_service)
                     .service(routesv1::create), // account
             )
+            .service(
+                actix_files::Files::new("/editor", website_path.as_str()).index_file("index.html"),
+            )
+            .service(
+                actix_files::Files::new("/dashboard", website_path.as_str())
+                    .index_file("index.html"),
+            )
             .service(actix_files::Files::new("/", website_path.as_str()).index_file("index.html"))
             .wrap(Logger::default())
             .app_data(app_data.clone())

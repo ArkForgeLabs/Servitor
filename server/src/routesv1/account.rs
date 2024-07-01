@@ -50,7 +50,6 @@ pub async fn create_account(
     app_data: web::Data<crate::AppState>,
     account: web::Json<AccountUpdate>,
 ) -> actix_web::Result<HttpResponse> {
-    let account = account.into_inner();
     let password = crate::utils::hash(&account.password.as_str());
 
     match sqlx::query("INSERT INTO users (username, email, password, creation_date) VALUES ($1, $2, $3, CURRENT_TIMESTAMP)")
@@ -107,18 +106,6 @@ pub async fn delete_account(
             "Failed to delete account",
         )),
     }
-}
-
-#[get("/get_account")]
-pub async fn get_account(
-    _account: Account,
-    app_data: web::Data<crate::AppState>,
-    request: HttpRequest,
-) -> actix_web::Result<web::Json<VerifiedAccount>> {
-    Ok(web::Json(crate::utils::verify(
-        &app_data.database,
-        request,
-    )?))
 }
 
 #[get("/login")]
